@@ -1,0 +1,93 @@
+{
+  "name": "Generate CVs Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generate-cvs",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "webhookId": "generate-cvs-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Generar datos de CVs usando IA\nconst jobTitles = [\n  'Desarrollador Full Stack',\n  'Data Scientist',\n  'DevOps Engineer',\n  'Product Manager',\n  'UX/UI Designer',\n  'Machine Learning Engineer',\n  'Cloud Architect',\n  'Cybersecurity Specialist'\n];\n\nconst skills = [\n  'Python', 'JavaScript', 'React', 'Node.js', 'Docker', 'Kubernetes',\n  'AWS', 'Azure', 'Machine Learning', 'Data Science', 'SQL', 'MongoDB',\n  'Git', 'CI/CD', 'Microservices', 'REST APIs', 'GraphQL'\n];\n\nconst experiences = [\n  'Desarrollé aplicaciones web escalables usando React y Node.js',\n  'Implementé pipelines de datos con Python y Apache Spark',\n  'Diseñé arquitecturas de microservicios en la nube',\n  'Lideré equipos de desarrollo ágil con metodologías Scrum',\n  'Optimicé bases de datos mejorando el rendimiento en un 40%',\n  'Creé modelos de machine learning con 95% de precisión'\n];\n\n// Generar CVs aleatorios\nconst cvs = [];\nfor (let i = 0; i < 5; i++) {\n  const randomTitle = jobTitles[Math.floor(Math.random() * jobTitles.length)];\n  const randomSkills = skills.sort(() => 0.5 - Math.random()).slice(0, 6);\n  const randomExperiences = experiences.sort(() => 0.5 - Math.random()).slice(0, 3);\n  \n  cvs.push({\n    name: `Candidato ${i + 1}`,\n    title: randomTitle,\n    skills: randomSkills,\n    experience: randomExperiences,\n    years: Math.floor(Math.random() * 8) + 2,\n    education: 'Ingeniería en Sistemas o carrera afín'\n  });\n}\n\nreturn { cvs };"
+      },
+      "id": "generate-cv-data",
+      "name": "Generate CV Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Convertir datos a formato PDF usando una librería de generación de PDFs\nconst PDFDocument = require('pdfkit');\nconst fs = require('fs');\nconst path = require('path');\n\nconst cvs = $input.first().json.cvs;\nconst generatedFiles = [];\n\nfor (const cv of cvs) {\n  const doc = new PDFDocument();\n  const filename = `CV_${cv.name.replace(' ', '_')}_${Date.now()}.pdf`;\n  const filepath = path.join('/data/cvs', filename);\n  \n  // Asegurar que el directorio existe\n  const dir = path.dirname(filepath);\n  if (!fs.existsSync(dir)) {\n    fs.mkdirSync(dir, { recursive: true });\n  }\n  \n  doc.pipe(fs.createWriteStream(filepath));\n  \n  // Contenido del CV\n  doc.fontSize(20).text(cv.name, 100, 100);\n  doc.fontSize(16).text(cv.title, 100, 130);\n  \n  doc.fontSize(14).text('Habilidades Técnicas:', 100, 180);\n  doc.fontSize(12).text(cv.skills.join(', '), 100, 200);\n  \n  doc.fontSize(14).text('Experiencia:', 100, 240);\n  cv.experience.forEach((exp, index) => {\n    doc.fontSize(12).text(`• ${exp}`, 100, 260 + (index * 20));\n  });\n  \n  doc.fontSize(14).text(`Años de experiencia: ${cv.years}`, 100, 360);\n  doc.fontSize(14).text(`Educación: ${cv.education}`, 100, 380);\n  \n  doc.end();\n  \n  generatedFiles.push({\n    filename,\n    filepath,\n    candidate: cv.name,\n    title: cv.title\n  });\n}\n\nreturn { generatedFiles };"
+      },
+      "id": "generate-pdfs",
+      "name": "Generate PDFs",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "response",
+      "name": "Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Generate CV Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate CV Data": {
+      "main": [
+        [
+          {
+            "node": "Generate PDFs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate PDFs": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "1",
+  "id": "generate-cvs-workflow",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {}
+}
