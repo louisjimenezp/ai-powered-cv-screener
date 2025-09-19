@@ -5,9 +5,11 @@ import pytest
 from fastapi.testclient import TestClient
 from main import app
 
-client = TestClient(app)
+@pytest.fixture
+def client():
+    return TestClient(app)
 
-def test_health_check():
+def test_health_check(client):
     """Test del endpoint básico de salud"""
     response = client.get("/api/v1/health")
     assert response.status_code == 200
@@ -15,7 +17,7 @@ def test_health_check():
     assert data["status"] == "healthy"
     assert "message" in data
 
-def test_detailed_health_check():
+def test_detailed_health_check(client):
     """Test del endpoint detallado de salud"""
     response = client.get("/api/v1/health/detailed")
     assert response.status_code == 200
@@ -23,7 +25,7 @@ def test_detailed_health_check():
     assert data["status"] == "healthy"
     assert "components" in data
 
-def test_root_endpoint():
+def test_root_endpoint(client):
     """Test del endpoint raíz"""
     response = client.get("/")
     assert response.status_code == 200

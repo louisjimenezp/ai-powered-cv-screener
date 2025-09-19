@@ -61,11 +61,11 @@ async def upload_cv(file: UploadFile = File(...)) -> Dict[str, str]:
     """
     Subir un archivo CV para procesamiento
     """
+    # Verificar que sea un archivo PDF
+    if not file.filename.lower().endswith('.pdf'):
+        raise HTTPException(status_code=400, detail="Solo se permiten archivos PDF")
+    
     try:
-        # Verificar que sea un archivo PDF
-        if not file.filename.lower().endswith('.pdf'):
-            raise HTTPException(status_code=400, detail="Solo se permiten archivos PDF")
-        
         # Guardar el archivo en la carpeta de datos
         upload_path = os.path.join("../../data/cvs", file.filename)
         os.makedirs(os.path.dirname(upload_path), exist_ok=True)

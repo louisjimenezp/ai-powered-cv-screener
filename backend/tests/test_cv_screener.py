@@ -5,9 +5,11 @@ import pytest
 from fastapi.testclient import TestClient
 from main import app
 
-client = TestClient(app)
+@pytest.fixture
+def client():
+    return TestClient(app)
 
-def test_get_screening_criteria():
+def test_get_screening_criteria(client):
     """Test para obtener criterios de screening"""
     response = client.get("/api/v1/screening/criteria")
     assert response.status_code == 200
@@ -19,7 +21,7 @@ def test_get_screening_criteria():
     assert isinstance(data["soft_skills"], list)
     assert isinstance(data["experience_levels"], list)
 
-def test_analyze_cv():
+def test_analyze_cv(client):
     """Test para análisis de CV"""
     test_data = {
         "job_description": "Desarrollador Python con experiencia en FastAPI",
@@ -37,7 +39,7 @@ def test_analyze_cv():
     assert "recommendations" in data
     assert "detailed_analysis" in data
 
-def test_upload_cv_invalid_file():
+def test_upload_cv_invalid_file(client):
     """Test para subida de archivo inválido"""
     # Crear un archivo de texto en lugar de PDF
     files = {"file": ("test.txt", b"test content", "text/plain")}

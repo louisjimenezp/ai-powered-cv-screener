@@ -3,13 +3,12 @@ Pipeline RAG para el procesamiento y análisis de CVs
 """
 import os
 from typing import List, Dict, Any, Optional
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Pinecone
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_pinecone import PineconeVectorStore
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.schema import Document
-import pinecone
+from pinecone import Pinecone
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,22 +32,23 @@ class RAGPipeline:
             )
             
             # Configurar Pinecone
-            pinecone.init(
-                api_key=os.getenv("PINECONE_API_KEY"),
-                environment=os.getenv("PINECONE_ENVIRONMENT")
-            )
+            pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
             
             # Obtener o crear índice
             index_name = os.getenv("PINECONE_INDEX_NAME", "cv-screener")
-            if index_name not in pinecone.list_indexes():
-                pinecone.create_index(
+            
+            # Listar índices existentes
+            existing_indexes = [index.name for index in pc.list_indexes()]
+            
+            if index_name not in existing_indexes:
+                pc.create_index(
                     name=index_name,
                     dimension=1536,  # Dimensión de OpenAI embeddings
                     metric="cosine"
                 )
             
             # Conectar al índice
-            self.vectorstore = Pinecone.from_existing_index(
+            self.vectorstore = PineconeVectorStore.from_existing_index(
                 index_name=index_name,
                 embedding=self.embeddings
             )
@@ -56,7 +56,7 @@ class RAGPipeline:
             # Configurar LLM
             self.llm = ChatOpenAI(
                 openai_api_key=os.getenv("OPENAI_API_KEY"),
-                model_name="gpt-3.5-turbo",
+                model="gpt-3.5-turbo",
                 temperature=0.1
             )
             
