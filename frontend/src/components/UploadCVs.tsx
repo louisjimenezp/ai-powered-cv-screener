@@ -223,11 +223,6 @@ export default function UploadCVs() {
                           <br />
                           {file.chunks_count || 0}
                         </div>
-                        <div>
-                          <span className="font-medium">Vectores:</span>
-                          <br />
-                          {file.vector_stats?.vector_count || 0}
-                        </div>
                       </div>
 
                       {file.processing_errors && file.processing_errors.length > 0 && (

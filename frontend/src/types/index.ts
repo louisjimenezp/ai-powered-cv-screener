@@ -57,12 +57,6 @@ export interface FileMetadata {
   status: 'uploaded' | 'processing' | 'processed' | 'error'
   chunks_count?: number
   processing_errors?: string[]
-  vector_stats?: {
-    vector_count: number
-    chunk_indices: number[]
-    filenames: string[]
-    status: string
-  }
 }
 
 export interface ChatResponse {

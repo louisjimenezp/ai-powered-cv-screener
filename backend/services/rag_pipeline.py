@@ -377,44 +377,6 @@ class RAGPipeline:
             print(f"Error al obtener estadísticas del vectorstore: {str(e)}")
             return {"error": str(e)}
     
-    async def get_uuid_stats(self, file_uuid: str) -> Dict[str, Any]:
-        """
-        Obtiene estadísticas de vectores para un UUID específico
-        
-        Args:
-            file_uuid: UUID del archivo
-            
-        Returns:
-            Dict con estadísticas del UUID
-        """
-        try:
-            if not self.vectorstore:
-                return {"error": "Pipeline RAG no inicializado"}
-            
-            # Obtener el índice de Pinecone directamente
-            pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
-            index_name = os.getenv("PINECONE_INDEX_NAME", "cv-screener")
-            index = pc.Index(index_name)
-            
-            # Buscar vectores con este UUID
-            query_response = index.query(
-                vector=[0.0] * 1536,  # Vector dummy
-                top_k=1000,
-                include_metadata=True,
-                filter={"uuid": {"$eq": file_uuid}}
-            )
-            
-            return {
-                "uuid": file_uuid,
-                "vector_count": len(query_response.matches),
-                "chunk_indices": [match.metadata.get("chunk_index", -1) for match in query_response.matches],
-                "filenames": list(set([match.metadata.get("filename", "Unknown") for match in query_response.matches])),
-                "status": "found" if query_response.matches else "not_found"
-            }
-            
-        except Exception as e:
-            print(f"Error al obtener estadísticas para UUID {file_uuid}: {str(e)}")
-            return {"error": str(e), "uuid": file_uuid}
     
     async def cleanup(self):
         """Limpiar recursos"""

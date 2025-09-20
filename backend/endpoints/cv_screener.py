@@ -192,15 +192,6 @@ async def get_cv_metadata(uuid: str) -> Dict[str, Any]:
         if not metadata:
             raise HTTPException(status_code=404, detail="Archivo no encontrado")
         
-        # Obtener estadísticas de vectores si el pipeline está disponible
-        try:
-            from main import rag_pipeline
-            if rag_pipeline:
-                vector_stats = await rag_pipeline.get_uuid_stats(uuid)
-                metadata["vector_stats"] = vector_stats
-        except Exception as e:
-            print(f"Error al obtener estadísticas de vectores: {str(e)}")
-            metadata["vector_stats"] = {"error": "No disponible"}
         
         return metadata
         
