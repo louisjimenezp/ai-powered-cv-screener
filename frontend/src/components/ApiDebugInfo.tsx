@@ -3,23 +3,26 @@ import { useApiConfig } from '../hooks/useApiConfig'
 
 /**
  * Debug component to show API configuration information
- * Only shown in development mode
+ * Only shown when VITE_SHOW_API_DEBUG=true in environment variables
  */
 export const ApiDebugInfo: React.FC = () => {
-  const { debugInfo, isDevelopment, checkBackendHealth } = useApiConfig()
+  const { debugInfo, checkBackendHealth } = useApiConfig()
   const [backendStatus, setBackendStatus] = useState<'checking' | 'online' | 'offline'>('checking')
   const [isExpanded, setIsExpanded] = useState(false)
 
+  // Check if API debug should be shown
+  const shouldShowDebug = import.meta.env.VITE_SHOW_API_DEBUG === 'true'
+
   useEffect(() => {
-    if (isDevelopment) {
+    if (shouldShowDebug) {
       checkBackendHealth().then(isOnline => {
         setBackendStatus(isOnline ? 'online' : 'offline')
       })
     }
-  }, [isDevelopment, checkBackendHealth])
+  }, [shouldShowDebug, checkBackendHealth])
 
-  // Only show in development
-  if (!isDevelopment) {
+  // Only show if explicitly enabled via environment variable
+  if (!shouldShowDebug) {
     return null
   }
 
