@@ -15,8 +15,10 @@ class FileManager:
     """Gestor de archivos con UUIDs únicos"""
     
     def __init__(self):
-        self.cvs_dir = Path("../../data/cvs")
-        self.json_dir = Path("../../data/json")
+        # Rutas relativas al directorio raíz del proyecto
+        project_root = Path(__file__).parent.parent.parent
+        self.cvs_dir = project_root / "data" / "cvs"
+        self.json_dir = project_root / "data" / "json"
         self._ensure_directories()
     
     def _ensure_directories(self):

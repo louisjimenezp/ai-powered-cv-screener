@@ -1,5 +1,15 @@
 import axios from 'axios'
-import { CVScreeningRequest, CVScreeningResponse, ScreeningCriteria, UploadResponse } from '../types'
+import { 
+  CVScreeningRequest, 
+  CVScreeningResponse, 
+  ScreeningCriteria, 
+  UploadResponse,
+  FileMetadata,
+  ChatResponse,
+  DeleteResponse,
+  FileListResponse,
+  ChatStats
+} from '../types'
 import { getApiConfig, API_ENDPOINTS, DEFAULT_HEADERS, UPLOAD_HEADERS, ERROR_MESSAGES } from '../config/api'
 
 // Configuración centralizada de la API
@@ -85,7 +95,7 @@ export const cvScreenerAPI = {
     return response.data
   },
 
-  // Subir archivo CV
+  // Subir archivo CV (actualizado para UUID)
   async uploadCV(file: File): Promise<UploadResponse> {
     const formData = new FormData()
     formData.append('file', file)
@@ -105,6 +115,42 @@ export const cvScreenerAPI = {
   // Verificar salud del sistema
   async healthCheck(): Promise<{ status: string; message: string }> {
     const response = await api.get(API_ENDPOINTS.HEALTH)
+    return response.data
+  },
+
+  // === NUEVAS FUNCIONES PARA SISTEMA UUID ===
+
+  // Chat con RAG
+  async sendChatMessage(message: string): Promise<ChatResponse> {
+    const response = await api.post('/chat', { message })
+    return response.data
+  },
+
+  // Gestión de archivos con UUID
+  async deleteCV(uuid: string): Promise<DeleteResponse> {
+    const response = await api.delete(`/screening/upload/${uuid}`)
+    return response.data
+  },
+
+  async getFileMetadata(uuid: string): Promise<FileMetadata> {
+    const response = await api.get(`/screening/upload/${uuid}`)
+    return response.data
+  },
+
+  async listCVs(): Promise<FileListResponse> {
+    const response = await api.get('/screening/upload')
+    return response.data
+  },
+
+  // Chat stats
+  async getChatStats(): Promise<ChatStats> {
+    const response = await api.get('/chat/stats')
+    return response.data
+  },
+
+  // Test chat endpoint
+  async testChat(message: string): Promise<{ message: string; status: string }> {
+    const response = await api.post('/chat/test', { message })
     return response.data
   },
 }

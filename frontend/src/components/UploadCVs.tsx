@@ -1,14 +1,32 @@
-import React, { useState, useRef } from 'react'
-import { useCVScreener } from '../contexts/CVScreenerContext'
+import React, { useState, useRef, useEffect } from 'react'
 import { useApi } from '../hooks/useApi'
 import { cvScreenerAPI } from '../services/api'
-import { Upload, FileText, X, CheckCircle } from 'lucide-react'
+import { Upload, FileText, CheckCircle, Trash2, RefreshCw, AlertCircle } from 'lucide-react'
+import { FileMetadata } from '../types'
 
 export default function UploadCVs() {
-  const { state, dispatch } = useCVScreener()
-  const { execute: uploadCV, loading, error } = useApi()
+  const { execute: uploadCV, error } = useApi()
   const [dragActive, setDragActive] = useState(false)
+  const [files, setFiles] = useState<FileMetadata[]>([])
+  const [loadingFiles, setLoadingFiles] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Cargar lista de archivos al montar el componente
+  useEffect(() => {
+    loadFiles()
+  }, [])
+
+  const loadFiles = async () => {
+    try {
+      setLoadingFiles(true)
+      const response = await cvScreenerAPI.listCVs()
+      setFiles(response.files)
+    } catch (err) {
+      console.error('Error al cargar archivos:', err)
+    } finally {
+      setLoadingFiles(false)
+    }
+  }
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault()
@@ -37,25 +55,10 @@ export default function UploadCVs() {
     }
 
     try {
-      const response = await uploadCV(() => cvScreenerAPI.uploadCV(file))
+      await uploadCV(() => cvScreenerAPI.uploadCV(file))
       
-      // Agregar archivo al estado
-      const newCVFile = {
-        id: Date.now().toString(),
-        filename: file.name,
-        uploadDate: new Date(),
-        status: 'uploaded' as const,
-      }
-      
-      dispatch({ type: 'ADD_CV_FILE', payload: newCVFile })
-      
-      // Simular procesamiento
-      setTimeout(() => {
-        dispatch({
-          type: 'UPDATE_CV_FILE',
-          payload: { id: newCVFile.id, updates: { status: 'processed' } }
-        })
-      }, 2000)
+      // Recargar lista de archivos para mostrar el nuevo archivo
+      await loadFiles()
       
     } catch (err) {
       console.error('Error al subir archivo:', err)
@@ -68,8 +71,39 @@ export default function UploadCVs() {
     }
   }
 
-  const removeFile = (id: string) => {
-    dispatch({ type: 'REMOVE_CV_FILE', payload: id })
+  const deleteFile = async (uuid: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar este archivo? Esta acción no se puede deshacer.')) {
+      return
+    }
+
+    try {
+      await cvScreenerAPI.deleteCV(uuid)
+      await loadFiles() // Recargar lista
+    } catch (err) {
+      console.error('Error al eliminar archivo:', err)
+      alert('Error al eliminar el archivo. Por favor, intenta de nuevo.')
+    }
+  }
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'processed':
+        return <CheckCircle className="h-5 w-5 text-green-500" />
+      case 'processing':
+        return <RefreshCw className="h-5 w-5 text-yellow-500 animate-spin" />
+      case 'error':
+        return <AlertCircle className="h-5 w-5 text-red-500" />
+      default:
+        return <FileText className="h-5 w-5 text-gray-400" />
+    }
   }
 
   return (
@@ -132,50 +166,98 @@ export default function UploadCVs() {
 
       {/* File List */}
       <div className="card">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Archivos Subidos ({state.cvFiles.length})
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-gray-900">
+            Archivos Procesados ({files.length})
+          </h3>
+          <button
+            onClick={loadFiles}
+            disabled={loadingFiles}
+            className="btn-secondary text-sm"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${loadingFiles ? 'animate-spin' : ''}`} />
+            Actualizar
+          </button>
+        </div>
         
-        {state.cvFiles.length === 0 ? (
-          <p className="text-sm text-gray-500">No hay archivos subidos aún</p>
+        {loadingFiles ? (
+          <div className="text-center py-8">
+            <RefreshCw className="h-8 w-8 text-gray-400 animate-spin mx-auto mb-2" />
+            <p className="text-sm text-gray-500">Cargando archivos...</p>
+          </div>
+        ) : files.length === 0 ? (
+          <p className="text-sm text-gray-500">No hay archivos procesados aún</p>
         ) : (
           <div className="space-y-3">
-            {state.cvFiles.map((cv) => (
+            {files.map((file) => (
               <div
-                key={cv.id}
-                className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                key={file.uuid}
+                className="p-4 bg-gray-50 rounded-lg border border-gray-200"
               >
-                <div className="flex items-center">
-                  <FileText className="h-5 w-5 text-gray-400 mr-3" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">
-                      {cv.filename}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Subido: {cv.uploadDate.toLocaleDateString()}
-                    </p>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-3 flex-1">
+                    {getStatusIcon(file.status)}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {file.original_filename}
+                        </p>
+                        <span className="text-xs text-gray-500 font-mono">
+                          {file.uuid.substring(0, 8)}...
+                        </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-gray-500">
+                        <div>
+                          <span className="font-medium">Tamaño:</span>
+                          <br />
+                          {formatFileSize(file.file_size)}
+                        </div>
+                        <div>
+                          <span className="font-medium">Subido:</span>
+                          <br />
+                          {new Date(file.upload_date).toLocaleDateString()}
+                        </div>
+                        <div>
+                          <span className="font-medium">Chunks:</span>
+                          <br />
+                          {file.chunks_count || 0}
+                        </div>
+                        <div>
+                          <span className="font-medium">Vectores:</span>
+                          <br />
+                          {file.vector_stats?.vector_count || 0}
+                        </div>
+                      </div>
+
+                      {file.processing_errors && file.processing_errors.length > 0 && (
+                        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+                          <strong>Errores:</strong> {file.processing_errors.join(', ')}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  {cv.status === 'processed' && (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  )}
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    cv.status === 'processed'
-                      ? 'bg-green-100 text-green-800'
-                      : cv.status === 'processing'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {cv.status}
-                  </span>
-                  <button
-                    onClick={() => removeFile(cv.id)}
-                    className="text-gray-400 hover:text-red-500"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
+                  
+                  <div className="flex items-center space-x-2 ml-4">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      file.status === 'processed'
+                        ? 'bg-green-100 text-green-800'
+                        : file.status === 'processing'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : file.status === 'error'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {file.status}
+                    </span>
+                    <button
+                      onClick={() => deleteFile(file.uuid)}
+                      className="text-gray-400 hover:text-red-500 p-1"
+                      title="Eliminar archivo"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

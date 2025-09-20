@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useCVScreener } from '../contexts/CVScreenerContext'
-import { Send, Bot, User } from 'lucide-react'
+import { Send, Bot, User, FileText, AlertCircle } from 'lucide-react'
+import { cvScreenerAPI } from '../services/api'
+import { ChatResponse } from '../types'
 
 export default function ChatInterface() {
   const { state, dispatch } = useCVScreener()
   const [inputMessage, setInputMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -27,21 +30,42 @@ export default function ChatInterface() {
     }
 
     dispatch({ type: 'ADD_CHAT_MESSAGE', payload: userMessage })
+    const currentMessage = inputMessage
     setInputMessage('')
     setIsTyping(true)
+    setError(null)
 
-    // Simular respuesta de la IA
-    setTimeout(() => {
+    try {
+      // Llamar a la API real
+      const response: ChatResponse = await cvScreenerAPI.sendChatMessage(currentMessage)
+      
       const aiMessage = {
         id: (Date.now() + 1).toString(),
-        content: `He analizado tu consulta: "${inputMessage}". Basándome en los CVs procesados, puedo ayudarte con análisis de coincidencias, recomendaciones de mejora, y comparaciones entre candidatos. ¿En qué más puedo ayudarte?`,
+        content: response.response,
         role: 'assistant' as const,
         timestamp: new Date(),
+        sources: response.sources,
+        sourceFiles: response.source_files,
+        confidence: response.confidence,
       }
       
       dispatch({ type: 'ADD_CHAT_MESSAGE', payload: aiMessage })
+    } catch (err) {
+      console.error('Error en chat:', err)
+      setError(err instanceof Error ? err.message : 'Error al procesar la consulta')
+      
+      const errorMessage = {
+        id: (Date.now() + 1).toString(),
+        content: 'Lo siento, hubo un error al procesar tu consulta. Por favor, intenta de nuevo.',
+        role: 'assistant' as const,
+        timestamp: new Date(),
+        isError: true,
+      }
+      
+      dispatch({ type: 'ADD_CHAT_MESSAGE', payload: errorMessage })
+    } finally {
       setIsTyping(false)
-    }, 1500)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -61,6 +85,20 @@ export default function ChatInterface() {
       </div>
 
       <div className="card h-[600px] flex flex-col">
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-400 p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <AlertCircle className="h-5 w-5 text-red-400" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {state.chatMessages.length === 0 ? (
@@ -109,14 +147,58 @@ export default function ChatInterface() {
                     className={`px-4 py-2 rounded-lg ${
                       message.role === 'user'
                         ? 'bg-primary-600 text-white'
+                        : message.isError
+                        ? 'bg-red-100 text-red-900 border border-red-200'
                         : 'bg-gray-100 text-gray-900'
                     }`}
                   >
                     <p className="text-sm">{message.content}</p>
+                    
+                    {/* Mostrar fuentes y confianza para respuestas de IA */}
+                    {message.role === 'assistant' && !message.isError && (
+                      <div className="mt-2 space-y-1">
+                        {message.confidence && (
+                          <div className="flex items-center text-xs text-gray-500">
+                            <span className="mr-1">Confianza:</span>
+                            <div className="flex items-center">
+                              <div className="w-16 bg-gray-200 rounded-full h-1.5 mr-2">
+                                <div 
+                                  className="bg-green-500 h-1.5 rounded-full" 
+                                  style={{ width: `${message.confidence * 100}%` }}
+                                ></div>
+                              </div>
+                              <span>{Math.round(message.confidence * 100)}%</span>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {message.sourceFiles && message.sourceFiles.length > 0 && (
+                          <div className="text-xs text-gray-500">
+                            <div className="flex items-center mb-1">
+                              <FileText className="h-3 w-3 mr-1" />
+                              <span>Fuentes:</span>
+                            </div>
+                            <div className="flex flex-wrap gap-1">
+                              {message.sourceFiles.map((file, index) => (
+                                <span
+                                  key={index}
+                                  className="px-2 py-1 bg-gray-200 rounded text-xs"
+                                >
+                                  {file}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    
                     <p
                       className={`text-xs mt-1 ${
                         message.role === 'user'
                           ? 'text-primary-100'
+                          : message.isError
+                          ? 'text-red-600'
                           : 'text-gray-500'
                       }`}
                     >
