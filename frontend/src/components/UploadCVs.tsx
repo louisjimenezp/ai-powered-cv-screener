@@ -96,13 +96,13 @@ export default function UploadCVs() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'processed':
-        return <CheckCircle className="h-5 w-5 text-green-500" />
+        return <CheckCircle className="h-5 w-5 text-green-500" aria-label="File processed successfully" />
       case 'processing':
-        return <RefreshCw className="h-5 w-5 text-yellow-500 animate-spin" />
+        return <RefreshCw className="h-5 w-5 text-yellow-500 animate-spin" aria-label="File processing" />
       case 'error':
-        return <AlertCircle className="h-5 w-5 text-red-500" />
+        return <AlertCircle className="h-5 w-5 text-red-500" aria-label="File processing error" />
       default:
-        return <FileText className="h-5 w-5 text-gray-400" />
+        return <FileText className="h-5 w-5 text-gray-400" aria-label="File uploaded" />
     }
   }
 
@@ -198,16 +198,13 @@ export default function UploadCVs() {
                   <div className="flex items-start space-x-3 flex-1">
                     {getStatusIcon(file.status)}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                      <div className="mb-1">
+                        <p className="text-sm font-medium text-gray-900 break-words">
                           {file.original_filename}
                         </p>
-                        <span className="text-xs text-gray-500 font-mono">
-                          {file.uuid.substring(0, 8)}...
-                        </span>
                       </div>
                       
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-gray-500">
+                      <div className="grid grid-cols-2 gap-4 text-xs text-gray-500">
                         <div>
                           <span className="font-medium">Size:</span>
                           <br />
@@ -217,11 +214,6 @@ export default function UploadCVs() {
                           <span className="font-medium">Uploaded:</span>
                           <br />
                           {new Date(file.upload_date).toLocaleDateString()}
-                        </div>
-                        <div>
-                          <span className="font-medium">Chunks:</span>
-                          <br />
-                          {file.chunks_count || 0}
                         </div>
                       </div>
 
@@ -234,17 +226,6 @@ export default function UploadCVs() {
                   </div>
                   
                   <div className="flex items-center space-x-2 ml-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      file.status === 'processed'
-                        ? 'bg-green-100 text-green-800'
-                        : file.status === 'processing'
-                        ? 'bg-yellow-100 text-yellow-800'
-                        : file.status === 'error'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {file.status}
-                    </span>
                     <button
                       onClick={() => deleteFile(file.uuid)}
                       className="text-gray-400 hover:text-red-500 p-1"
