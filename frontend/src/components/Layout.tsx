@@ -54,8 +54,7 @@ export default function Layout({ children }: LayoutProps) {
               )}
             </button>
             <div className="flex items-center">
-              <FileText className="h-8 w-8 text-primary-600" />
-              <h1 className="ml-2 text-xl font-bold text-gray-900">
+              <h1 className="text-xl font-bold text-gray-900">
                 CV Screener
               </h1>
             </div>
