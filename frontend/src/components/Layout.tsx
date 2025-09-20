@@ -41,10 +41,10 @@ export default function Layout({ children }: LayoutProps) {
       {/* Mobile Header */}
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200 md:hidden">
-          <div className="flex h-16 items-center px-4">
+          <div className="flex h-16 items-center px-4 relative">
             <button
               onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
-              className="p-2 rounded-md hover:bg-gray-100 transition-colors mr-3"
+              className="p-2 rounded-md hover:bg-gray-100 transition-colors z-10"
               aria-label={isMobileSidebarOpen ? "Cerrar panel lateral" : "Abrir menú"}
             >
               {isMobileSidebarOpen ? (
@@ -53,9 +53,9 @@ export default function Layout({ children }: LayoutProps) {
                 <Menu className="h-6 w-6 text-gray-600" />
               )}
             </button>
-            <div className="flex items-center">
+            <div className="absolute inset-0 flex items-center justify-center">
               <h1 className="text-xl font-bold text-gray-900">
-                CV Screener
+                {navigation.find(item => item.href === location.pathname)?.name || 'CV Screener'}
               </h1>
             </div>
           </div>

@@ -78,14 +78,14 @@ export default function ChatInterface() {
 
   return (
     <div className="space-y-8">
-      <div>
+      <div className="hidden md:block">
         <h1 className="text-3xl font-bold text-gray-900">AI Chat</h1>
         <p className="mt-2 text-gray-600">
           Ask questions about processed CVs and get intelligent insights
         </p>
       </div>
 
-      <div className="card h-[600px] flex flex-col">
+      <div className="card h-[calc(100vh-120px)] md:h-[calc(100vh-200px)] flex flex-col">
         {/* Error Message */}
         {error && (
           <div className="bg-red-50 border-l-4 border-red-400 p-4">
@@ -230,8 +230,8 @@ export default function ChatInterface() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
-        <div className="border-t border-gray-200 p-4">
+        {/* Input - Fixed at bottom */}
+        <div className="flex-shrink-0 border-t border-gray-200 p-4">
           <div className="flex space-x-4">
             <input
               type="text"

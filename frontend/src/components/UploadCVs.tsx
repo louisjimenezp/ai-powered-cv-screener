@@ -108,7 +108,7 @@ export default function UploadCVs() {
 
   return (
     <div className="space-y-8">
-      <div>
+      <div className="hidden md:block">
         <h1 className="text-3xl font-bold text-gray-900">Upload CVs</h1>
         <p className="mt-2 text-gray-600">
           Upload PDF CV files for AI analysis
