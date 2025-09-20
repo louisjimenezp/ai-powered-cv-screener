@@ -153,7 +153,9 @@ export default function ChatInterface() {
                         : 'bg-gray-100 text-gray-900'
                     }`}
                   >
-                    <div className="text-sm prose prose-sm max-w-none prose-ul:list-disc prose-li:marker:text-gray-600">
+                    <div className={`text-sm prose prose-sm max-w-none prose-ul:list-disc prose-li:marker:text-gray-600 ${
+                      message.role === 'user' ? 'prose-invert prose-headings:text-white prose-p:text-white prose-strong:text-white prose-em:text-white prose-code:text-white prose-pre:text-white prose-blockquote:text-white' : ''
+                    }`}>
                       <ReactMarkdown>{message.content}</ReactMarkdown>
                     </div>
                     
