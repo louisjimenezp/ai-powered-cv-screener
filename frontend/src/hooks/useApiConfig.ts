@@ -2,27 +2,27 @@ import { useMemo } from 'react'
 import { getApiConfig, getDebugInfo, checkBackendHealth } from '../config/api'
 
 /**
- * Hook personalizado para acceder a la configuración de la API
- * Proporciona información en tiempo real sobre la configuración del backend
+ * Custom hook to access API configuration
+ * Provides real-time information about backend configuration
  */
 export const useApiConfig = () => {
   const config = useMemo(() => getApiConfig(), [])
   const debugInfo = useMemo(() => getDebugInfo(), [])
 
   return {
-    // Configuración principal
+    // Main configuration
     baseUrl: config.baseUrl,
     timeout: config.timeout,
     retries: config.retries,
     debug: config.debug,
     
-    // Información de debug
+    // Debug information
     debugInfo,
     
-    // Funciones utilitarias
+    // Utility functions
     checkBackendHealth,
     
-    // Información del entorno
+    // Environment information
     isDevelopment: debugInfo.isDevelopment,
     isProduction: debugInfo.isProduction,
     environment: debugInfo.environment,
@@ -30,7 +30,7 @@ export const useApiConfig = () => {
 }
 
 /**
- * Hook para verificar el estado de conexión del backend
+ * Hook to check backend connection status
  */
 export const useBackendStatus = () => {
   const { checkBackendHealth, baseUrl } = useApiConfig()

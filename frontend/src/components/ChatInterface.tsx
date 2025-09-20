@@ -37,7 +37,7 @@ export default function ChatInterface() {
     setError(null)
 
     try {
-      // Llamar a la API real
+      // Call the real API
       const response: ChatResponse = await cvScreenerAPI.sendChatMessage(currentMessage)
       
       const aiMessage = {
@@ -52,12 +52,12 @@ export default function ChatInterface() {
       
       dispatch({ type: 'ADD_CHAT_MESSAGE', payload: aiMessage })
     } catch (err) {
-      console.error('Error en chat:', err)
-      setError(err instanceof Error ? err.message : 'Error al procesar la consulta')
+      console.error('Chat error:', err)
+      setError(err instanceof Error ? err.message : 'Error processing the query')
       
       const errorMessage = {
         id: (Date.now() + 1).toString(),
-        content: 'Lo siento, hubo un error al procesar tu consulta. Por favor, intenta de nuevo.',
+        content: 'Sorry, there was an error processing your query. Please try again.',
         role: 'assistant' as const,
         timestamp: new Date(),
         isError: true,
@@ -79,9 +79,9 @@ export default function ChatInterface() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Chat con IA</h1>
+        <h1 className="text-3xl font-bold text-gray-900">AI Chat</h1>
         <p className="mt-2 text-gray-600">
-          Haz preguntas sobre los CVs procesados y obtén insights inteligentes
+          Ask questions about processed CVs and get intelligent insights
         </p>
       </div>
 
@@ -105,13 +105,13 @@ export default function ChatInterface() {
           {state.chatMessages.length === 0 ? (
             <div className="text-center text-gray-500 mt-8">
               <Bot className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-              <p>¡Hola! Soy tu asistente de IA para análisis de CVs.</p>
-              <p className="mt-2">Puedes preguntarme sobre:</p>
+              <p>Hello! I'm your AI assistant for CV analysis.</p>
+              <p className="mt-2">You can ask me about:</p>
               <ul className="mt-2 text-sm space-y-1">
-                <li>• Análisis de coincidencias entre CVs y descripciones de trabajo</li>
-                <li>• Recomendaciones para mejorar CVs</li>
-                <li>• Comparaciones entre candidatos</li>
-                <li>• Insights sobre tendencias en los CVs</li>
+                <li>• Analysis of matches between CVs and job descriptions</li>
+                <li>• Recommendations to improve CVs</li>
+                <li>• Comparisons between candidates</li>
+                <li>• Insights about trends in CVs</li>
               </ul>
             </div>
           ) : (
@@ -162,7 +162,7 @@ export default function ChatInterface() {
                       <div className="mt-2 flex items-center text-xs text-gray-500 gap-3 flex-wrap">
                         {message.confidence && (
                           <div className="flex items-center gap-2">
-                            <span>Confianza:</span>
+                            <span>Confidence:</span>
                             <div className="w-16 bg-gray-200 rounded-full h-1.5">
                               <div 
                                 className="bg-green-500 h-1.5 rounded-full" 
@@ -238,7 +238,7 @@ export default function ChatInterface() {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Escribe tu mensaje aquí..."
+              placeholder="Type your message here..."
               className="flex-1 input-field"
               disabled={isTyping}
             />

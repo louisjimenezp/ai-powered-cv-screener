@@ -1,4 +1,4 @@
-// Tipos para el sistema de screening de CVs
+// Types for the CV screening system
 
 export interface CVScreeningRequest {
   job_description: string
@@ -34,10 +34,10 @@ export interface ChatMessage {
   content: string
   role: 'user' | 'assistant'
   timestamp: Date
-  sources?: string[]  // UUIDs de archivos fuente
-  sourceFiles?: string[]  // Nombres de archivos fuente
-  confidence?: number  // Nivel de confianza de la respuesta
-  isError?: boolean  // Si es un mensaje de error
+  sources?: string[]  // Source file UUIDs
+  sourceFiles?: string[]  // Source file names
+  confidence?: number  // Response confidence level
+  isError?: boolean  // If it's an error message
 }
 
 export interface CVFile {
@@ -48,7 +48,7 @@ export interface CVFile {
   analysis?: CVScreeningResponse
 }
 
-// Nuevos tipos para el sistema UUID
+// New types for the UUID system
 export interface FileMetadata {
   uuid: string
   original_filename: string
@@ -61,8 +61,8 @@ export interface FileMetadata {
 
 export interface ChatResponse {
   response: string
-  sources: string[]  // UUIDs de archivos
-  source_files: string[]  // Nombres originales
+  sources: string[]  // File UUIDs
+  source_files: string[]  // Original names
   confidence: number
 }
 

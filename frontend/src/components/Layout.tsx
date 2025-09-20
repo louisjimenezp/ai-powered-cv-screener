@@ -8,8 +8,8 @@ interface LayoutProps {
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: BarChart3 },
-  { name: 'Subir CVs', href: '/upload', icon: Upload },
-  { name: 'Chat IA', href: '/chat', icon: MessageSquare },
+  { name: 'Upload CVs', href: '/upload', icon: Upload },
+  { name: 'AI Chat', href: '/chat', icon: MessageSquare },
 ]
 
 export default function Layout({ children }: LayoutProps) {

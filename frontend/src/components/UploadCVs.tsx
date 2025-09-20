@@ -11,7 +11,7 @@ export default function UploadCVs() {
   const [loadingFiles, setLoadingFiles] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Cargar lista de archivos al montar el componente
+  // Load file list when component mounts
   useEffect(() => {
     loadFiles()
   }, [])
@@ -22,7 +22,7 @@ export default function UploadCVs() {
       const response = await cvScreenerAPI.listCVs()
       setFiles(response.files)
     } catch (err) {
-      console.error('Error al cargar archivos:', err)
+      console.error('Error loading files:', err)
     } finally {
       setLoadingFiles(false)
     }
@@ -50,18 +50,18 @@ export default function UploadCVs() {
 
   const handleFile = async (file: File) => {
     if (!file.type.includes('pdf')) {
-      alert('Solo se permiten archivos PDF')
+      alert('Only PDF files are allowed')
       return
     }
 
     try {
       await uploadCV(() => cvScreenerAPI.uploadCV(file))
       
-      // Recargar lista de archivos para mostrar el nuevo archivo
+      // Reload file list to show the new file
       await loadFiles()
       
     } catch (err) {
-      console.error('Error al subir archivo:', err)
+      console.error('Error uploading file:', err)
     }
   }
 
@@ -72,16 +72,16 @@ export default function UploadCVs() {
   }
 
   const deleteFile = async (uuid: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este archivo? Esta acción no se puede deshacer.')) {
+    if (!confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
       return
     }
 
     try {
       await cvScreenerAPI.deleteCV(uuid)
-      await loadFiles() // Recargar lista
+      await loadFiles() // Reload list
     } catch (err) {
-      console.error('Error al eliminar archivo:', err)
-      alert('Error al eliminar el archivo. Por favor, intenta de nuevo.')
+      console.error('Error deleting file:', err)
+      alert('Error deleting file. Please try again.')
     }
   }
 
@@ -109,9 +109,9 @@ export default function UploadCVs() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Subir CVs</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Upload CVs</h1>
         <p className="mt-2 text-gray-600">
-          Sube archivos PDF de CVs para su análisis con IA
+          Upload PDF CV files for AI analysis
         </p>
       </div>
 
@@ -139,10 +139,10 @@ export default function UploadCVs() {
           <Upload className="mx-auto h-12 w-12 text-gray-400" />
           <div className="mt-4">
             <p className="text-lg font-medium text-gray-900">
-              Arrastra y suelta tu archivo PDF aquí
+              Drag and drop your PDF file here
             </p>
             <p className="mt-1 text-sm text-gray-500">
-              o haz clic para seleccionar un archivo
+              or click to select a file
             </p>
           </div>
           <div className="mt-4">
@@ -151,7 +151,7 @@ export default function UploadCVs() {
               onClick={() => fileInputRef.current?.click()}
               className="btn-primary"
             >
-              Seleccionar Archivo
+              Select File
             </button>
           </div>
         </div>
@@ -168,7 +168,7 @@ export default function UploadCVs() {
       <div className="card">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium text-gray-900">
-            Archivos Procesados ({files.length})
+            Processed Files ({files.length})
           </h3>
           <button
             onClick={loadFiles}
@@ -176,17 +176,17 @@ export default function UploadCVs() {
             className="btn-secondary text-sm flex items-center gap-2"
           >
             <RefreshCw className={`h-4 w-4 ${loadingFiles ? 'animate-spin' : ''}`} />
-            Actualizar
+            Refresh
           </button>
         </div>
         
         {loadingFiles ? (
           <div className="text-center py-8">
             <RefreshCw className="h-8 w-8 text-gray-400 animate-spin mx-auto mb-2" />
-            <p className="text-sm text-gray-500">Cargando archivos...</p>
+            <p className="text-sm text-gray-500">Loading files...</p>
           </div>
         ) : files.length === 0 ? (
-          <p className="text-sm text-gray-500">No hay archivos procesados aún</p>
+          <p className="text-sm text-gray-500">No files processed yet</p>
         ) : (
           <div className="space-y-3">
             {files.map((file) => (
@@ -209,12 +209,12 @@ export default function UploadCVs() {
                       
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-gray-500">
                         <div>
-                          <span className="font-medium">Tamaño:</span>
+                          <span className="font-medium">Size:</span>
                           <br />
                           {formatFileSize(file.file_size)}
                         </div>
                         <div>
-                          <span className="font-medium">Subido:</span>
+                          <span className="font-medium">Uploaded:</span>
                           <br />
                           {new Date(file.upload_date).toLocaleDateString()}
                         </div>
@@ -227,7 +227,7 @@ export default function UploadCVs() {
 
                       {file.processing_errors && file.processing_errors.length > 0 && (
                         <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
-                          <strong>Errores:</strong> {file.processing_errors.join(', ')}
+                          <strong>Errors:</strong> {file.processing_errors.join(', ')}
                         </div>
                       )}
                     </div>
@@ -248,7 +248,7 @@ export default function UploadCVs() {
                     <button
                       onClick={() => deleteFile(file.uuid)}
                       className="text-gray-400 hover:text-red-500 p-1"
-                      title="Eliminar archivo"
+                      title="Delete file"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

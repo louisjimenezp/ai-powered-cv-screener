@@ -7,28 +7,28 @@ export default function Dashboard() {
 
   const stats = [
     {
-      name: 'CVs Procesados',
+      name: 'Processed CVs',
       value: state.cvFiles.length.toString(),
       icon: FileText,
       change: '+12%',
       changeType: 'positive' as const,
     },
     {
-      name: 'Descripciones de Trabajo',
+      name: 'Job Descriptions',
       value: state.jobDescriptions.length.toString(),
       icon: Users,
       change: '+8%',
       changeType: 'positive' as const,
     },
     {
-      name: 'Puntuación Promedio',
+      name: 'Average Score',
       value: '8.2',
       icon: TrendingUp,
       change: '+2.1%',
       changeType: 'positive' as const,
     },
     {
-      name: 'Análisis Completados',
+      name: 'Completed Analysis',
       value: state.cvFiles.filter(cv => cv.status === 'processed').length.toString(),
       icon: BarChart3,
       change: '+15%',
@@ -41,7 +41,7 @@ export default function Dashboard() {
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
         <p className="mt-2 text-gray-600">
-          Resumen del sistema de screening de CVs con IA
+          AI-powered CV screening system overview
         </p>
       </div>
 
@@ -79,7 +79,7 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="card">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            CVs Recientes
+            Recent CVs
           </h3>
           <div className="space-y-3">
             {state.cvFiles.slice(0, 5).map((cv) => (
@@ -102,24 +102,24 @@ export default function Dashboard() {
               </div>
             ))}
             {state.cvFiles.length === 0 && (
-              <p className="text-sm text-gray-500">No hay CVs procesados aún</p>
+              <p className="text-sm text-gray-500">No CVs processed yet</p>
             )}
           </div>
         </div>
 
         <div className="card">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Acciones Rápidas
+            Quick Actions
           </h3>
           <div className="space-y-3">
             <button className="w-full btn-primary text-left">
-              Subir Nuevo CV
+              Upload New CV
             </button>
             <button className="w-full btn-secondary text-left">
-              Crear Descripción de Trabajo
+              Create Job Description
             </button>
             <button className="w-full btn-secondary text-left">
-              Iniciar Chat con IA
+              Start AI Chat
             </button>
           </div>
         </div>

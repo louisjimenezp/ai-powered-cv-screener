@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useApiConfig } from '../hooks/useApiConfig'
 
 /**
- * Componente de debug para mostrar información de configuración de la API
- * Solo se muestra en modo desarrollo
+ * Debug component to show API configuration information
+ * Only shown in development mode
  */
 export const ApiDebugInfo: React.FC = () => {
   const { debugInfo, isDevelopment, checkBackendHealth } = useApiConfig()
@@ -18,7 +18,7 @@ export const ApiDebugInfo: React.FC = () => {
     }
   }, [isDevelopment, checkBackendHealth])
 
-  // Solo mostrar en desarrollo
+  // Only show in development
   if (!isDevelopment) {
     return null
   }
@@ -62,7 +62,7 @@ export const ApiDebugInfo: React.FC = () => {
         {isExpanded && (
           <div className="mt-3 space-y-2 text-xs">
             <div>
-              <span className="font-medium text-gray-600">Entorno:</span>
+              <span className="font-medium text-gray-600">Environment:</span>
               <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded">
                 {debugInfo.environment}
               </span>
@@ -82,18 +82,18 @@ export const ApiDebugInfo: React.FC = () => {
                   ? 'bg-green-100 text-green-800' 
                   : 'bg-gray-100 text-gray-800'
               }`}>
-                {debugInfo.proxyEnabled ? 'Habilitado' : 'Deshabilitado'}
+                {debugInfo.proxyEnabled ? 'Enabled' : 'Disabled'}
               </span>
             </div>
             
             <div>
-              <span className="font-medium text-gray-600">Configurado:</span>
+              <span className="font-medium text-gray-600">Configured:</span>
               <span className={`ml-2 px-2 py-1 rounded ${
                 debugInfo.backendUrl !== 'No configurado'
                   ? 'bg-green-100 text-green-800' 
                   : 'bg-yellow-100 text-yellow-800'
               }`}>
-                {debugInfo.backendUrl !== 'No configurado' ? 'Sí' : 'No'}
+                {debugInfo.backendUrl !== 'No configurado' ? 'Yes' : 'No'}
               </span>
             </div>
             
@@ -106,7 +106,7 @@ export const ApiDebugInfo: React.FC = () => {
               }}
               className="w-full mt-2 px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition-colors"
             >
-              Verificar Conexión
+              Check Connection
             </button>
           </div>
         )}
