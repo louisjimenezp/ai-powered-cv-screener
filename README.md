@@ -194,13 +194,23 @@ VITE_API_BASE_URL=http://localhost:8000/api/v1
 
 Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
 
+## 📚 Documentación Detallada
+
+Para información técnica detallada, consulta la documentación en la carpeta `docs/`:
+
+- **[docs/README.md](docs/README.md)** - Estado actual del proyecto y próximos pasos
+- **[docs/architecture.md](docs/architecture.md)** - Decisiones técnicas y arquitectura del sistema
+- **[docs/implementation.md](docs/implementation.md)** - Guía paso a paso para completar la implementación
+- **[docs/troubleshooting.md](docs/troubleshooting.md)** - Solución de problemas comunes
+
 ## 🆘 Soporte
 
 Si tienes preguntas o problemas:
 
-1. Revisa la documentación
-2. Busca en los issues existentes
-3. Crea un nuevo issue con detalles del problema
+1. Revisa la [documentación detallada](docs/)
+2. Consulta la [guía de troubleshooting](docs/troubleshooting.md)
+3. Busca en los issues existentes
+4. Crea un nuevo issue con detalles del problema
 
 ## 🔮 Roadmap
 
