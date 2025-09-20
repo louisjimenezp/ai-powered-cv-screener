@@ -42,7 +42,6 @@ export const API_ENDPOINTS = {
   // Screening
   ANALYZE_CV: '/screening/analyze',
   UPLOAD_CV: '/screening/upload',
-  SCREENING_CRITERIA: '/screening/criteria',
   
   // Health
   HEALTH: '/health',

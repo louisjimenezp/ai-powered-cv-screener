@@ -29,7 +29,7 @@ ai-powered-cv-screener/
 │   ├── services/              # Lógica de negocio y pipeline RAG
 │   ├── store/                 # Cliente de Pinecone
 │   ├── main.py               # Aplicación principal
-│   ├── rag_pipeline_init.py  # Script de inicialización
+│   ├── config/              # Configuración LLM
 │   ├── pyproject.toml        # Configuración Poetry
 │   └── env.example           # Variables de entorno
 ├── frontend/                  # Aplicación React
@@ -56,9 +56,8 @@ ai-powered-cv-screener/
 - **FastAPI**: Framework web moderno y rápido
 - **Poetry**: Gestión de dependencias Python
 - **Pinecone**: Base de datos vectorial
-- **OpenAI**: Modelos de lenguaje
+- **Gemini 2.5 Flash**: Modelo de lenguaje (OpenRouter)
 - **LangChain**: Framework para aplicaciones LLM
-- **PyPDF2**: Procesamiento de archivos PDF
 
 ### Frontend
 - **React 18**: Biblioteca de UI
@@ -101,8 +100,7 @@ poetry install
 cp env.example .env
 # Editar .env con tus claves API
 
-# Inicializar pipeline RAG (ejecutar una sola vez)
-poetry run python rag_pipeline_init.py
+# El pipeline RAG se inicializa automáticamente al levantar el servidor
 
 # Ejecutar servidor
 poetry run python main.py
@@ -134,9 +132,15 @@ npm run dev
 
 ### Backend (.env)
 ```env
+# OpenRouter (prioridad - Gemini 2.5 Flash)
+OPENROUTER_API_KEY=tu_openrouter_api_key
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+
+# OpenAI (fallback)
 OPENAI_API_KEY=tu_openai_api_key
+
+# Pinecone
 PINECONE_API_KEY=tu_pinecone_api_key
-PINECONE_ENVIRONMENT=tu_pinecone_environment
 PINECONE_INDEX_NAME=cv-screener
 ```
 
@@ -180,7 +184,8 @@ VITE_API_BASE_URL=http://localhost:8000/api/v1
 ### Screening de CVs
 - `POST /api/v1/screening/analyze` - Analizar CV contra descripción de trabajo
 - `POST /api/v1/screening/upload` - Subir archivo CV
-- `GET /api/v1/screening/criteria` - Obtener criterios de screening
+- `GET /api/v1/screening/upload` - Listar archivos CV
+- `DELETE /api/v1/screening/upload/{uuid}` - Eliminar archivo CV
 
 ## 🤝 Contribución
 

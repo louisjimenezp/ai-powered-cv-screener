@@ -2,7 +2,6 @@ import axios from 'axios'
 import { 
   CVScreeningRequest, 
   CVScreeningResponse, 
-  ScreeningCriteria, 
   UploadResponse,
   FileMetadata,
   ChatResponse,
@@ -107,11 +106,6 @@ export const cvScreenerAPI = {
     return response.data
   },
 
-  // Obtener criterios de screening
-  async getScreeningCriteria(): Promise<ScreeningCriteria> {
-    const response = await api.get(API_ENDPOINTS.SCREENING_CRITERIA)
-    return response.data
-  },
 
   // Verificar salud del sistema
   async healthCheck(): Promise<{ status: string; message: string }> {

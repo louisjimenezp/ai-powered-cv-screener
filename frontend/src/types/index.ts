@@ -15,11 +15,6 @@ export interface CVScreeningResponse {
   detailed_analysis: Record<string, number>
 }
 
-export interface ScreeningCriteria {
-  technical_skills: string[]
-  soft_skills: string[]
-  experience_levels: string[]
-}
 
 export interface UploadResponse {
   message: string

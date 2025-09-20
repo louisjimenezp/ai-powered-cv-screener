@@ -20,7 +20,7 @@ Este documento proporciona instrucciones detalladas para que CHATCOPILOT, CURSOR
 **Nombre:** AI-Powered CV Screener  
 **Tipo:** Aplicación full-stack para screening inteligente de CVs  
 **Tecnologías:** FastAPI (Backend) + React/TypeScript (Frontend)  
-**Base de datos:** Pinecone (vectorial) + OpenAI (LLM)  
+**Base de datos:** Pinecone (vectorial) + Gemini 2.5 Flash (LLM)  
 
 ### URLs del Sistema
 - **Backend API:** http://localhost:8000
@@ -84,9 +84,6 @@ Content-Type: multipart/form-data
 file: [archivo PDF]
 ```
 
-```http
-GET /api/v1/screening/criteria
-```
 
 ### Comandos Backend
 
@@ -253,7 +250,7 @@ PINECONE_INDEX_NAME=your_index_name
 # OpenAI (fallback)
 OPENAI_API_KEY=your_openai_api_key
 
-# OpenRouter (opcional - si no se define, usa OpenAI)
+# OpenRouter (prioridad - usa Gemini 2.5 Flash)
 OPENROUTER_API_KEY=your_openrouter_api_key
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 OPENROUTER_HTTP_REFERER=http://localhost:3000

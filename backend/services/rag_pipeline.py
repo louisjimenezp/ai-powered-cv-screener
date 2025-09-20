@@ -11,7 +11,6 @@ from langchain.schema import Document
 from pinecone import Pinecone
 from dotenv import load_dotenv
 from config.llm_config import get_llm_config, get_provider_info
-import pypdf
 from pathlib import Path
 
 load_dotenv()

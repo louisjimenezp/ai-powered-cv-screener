@@ -226,22 +226,3 @@ async def list_cvs() -> Dict[str, Any]:
         print(f"Error en list_cvs: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error al listar CVs: {str(e)}")
 
-@router.get("/screening/criteria")
-async def get_screening_criteria() -> Dict[str, List[str]]:
-    """
-    Obtener criterios de screening disponibles
-    """
-    return {
-        "technical_skills": [
-            "Python", "JavaScript", "React", "Node.js", "Docker", "Kubernetes",
-            "AWS", "Azure", "Machine Learning", "Data Science", "SQL", "NoSQL"
-        ],
-        "soft_skills": [
-            "Liderazgo", "Comunicación", "Trabajo en equipo", "Resolución de problemas",
-            "Adaptabilidad", "Creatividad", "Gestión de tiempo"
-        ],
-        "experience_levels": [
-            "Junior (0-2 años)", "Mid-level (2-5 años)", "Senior (5+ años)",
-            "Lead/Principal (8+ años)", "Staff/Architect (10+ años)"
-        ]
-    }

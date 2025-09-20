@@ -57,7 +57,7 @@ Demostrar capacidad de integración de IA, procesamiento de datos y desarrollo f
 - **Backend:** FastAPI + Python + Poetry
 - **Base de Datos Vectorial:** Pinecone
 - **IA/LLM:** Gemini 2.5 Flash + OpenRouter
-- **Procesamiento:** LangChain + PyPDF
+- **Procesamiento:** LangChain
 - **Generación de CVs:** N8N + Gemini 2.5 + DALL-E 3
 
 ### Flujo de Datos Completo:
@@ -135,7 +135,8 @@ Demostrar capacidad de integración de IA, procesamiento de datos y desarrollo f
 - ✅ Endpoints de salud (`/api/v1/health`)
 - ✅ Chat con IA (`/api/v1/chat`)
 - ✅ Upload de CVs (`/api/v1/screening/upload`)
-- ✅ Listado de archivos (`/api/v1/screening/criteria`)
+- ✅ Listado de archivos (`/api/v1/screening/upload`)
+- ✅ Eliminación de archivos (`/api/v1/screening/upload/{uuid}`)
 - ✅ Análisis de CVs (`/api/v1/screening/analyze`)
 
 ### 3. Interfaz de Usuario Moderna:
@@ -217,7 +218,7 @@ TELEGRAM_BOT_TOKEN=your_telegram_token
 ### Código Implementado:
 - **Backend:** 15+ archivos Python
 - **Frontend:** 20+ componentes React
-- **API Endpoints:** 8 endpoints funcionales
+- **API Endpoints:** 6 endpoints funcionales
 - **N8N Workflow:** 12 nodos interconectados
 - **Líneas de código:** 2500+ líneas
 - **Tests:** Cobertura básica implementada

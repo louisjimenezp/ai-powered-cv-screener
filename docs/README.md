@@ -2,27 +2,23 @@
 
 ## 🎯 Estado Actual del Proyecto
 
-### ✅ Completado
-- **Backend FastAPI** - Estructura básica configurada
-- **Frontend React** - UI con componentes de subida y chat
-- **Pipeline RAG** - Integración con Pinecone y OpenAI/OpenRouter
+### ✅ Completado (100%)
+- **Backend FastAPI** - API completa con endpoints funcionales
+- **Frontend React** - UI moderna con componentes de subida y chat
+- **Pipeline RAG** - Integración completa con Pinecone y Gemini 2.5 Flash
+- **Sistema de archivos** - Gestión con UUIDs y metadatos
+- **Chat funcional** - Consultas RAG con indicación de fuentes
+- **CV Creator** - Workflow N8N para generación automatizada de CVs
 - **Configuración** - Variables de entorno y dependencias
 - **CORS** - Configurado para desarrollo local
 
-### ❌ Pendiente de Implementación
-- **Sistema de gestión de archivos con UUID** - Trazabilidad completa
-- **Integración real upload → Pinecone** - Procesamiento automático
-- **Endpoint de chat funcional** - Consultas RAG reales
-- **Eliminación de archivos** - Borrar archivos y vectores
-- **Frontend conectado** - Sin simulaciones, APIs reales
+## 🚀 Próximos Pasos para Demo
 
-## 🚀 Próximos Pasos Inmediatos
-
-1. **Implementar sistema de UUIDs** - Gestión robusta de archivos
-2. **Conectar upload con RAG** - Procesamiento automático en Pinecone
-3. **Crear endpoint /chat** - Consultas RAG con fuentes
-4. **Integrar frontend real** - Eliminar simulaciones
-5. **Testing integral** - Verificar flujo completo
+1. **Generar CVs con N8N** - Ejecutar workflow CV Creator
+2. **Descargar PDFs** - Desde Google Drive a carpeta local
+3. **Subir CVs** - A través de la interfaz web
+4. **Probar chat** - Hacer consultas sobre los CVs
+5. **Crear presentación** - Screenshots y video demo
 
 ## 📚 Documentación Disponible
 
@@ -75,9 +71,10 @@ Frontend (React) ←→ Backend (FastAPI) ←→ Pinecone + OpenAI/OpenRouter
 - Respuestas contextuales con fuentes identificables
 
 **Tecnologías:**
-- **Backend:** FastAPI + Python
-- **Frontend:** React + TypeScript + Vite
-- **RAG:** Pinecone + OpenAI/OpenRouter
+- **Backend:** FastAPI + Python + Poetry
+- **Frontend:** React + TypeScript + Vite + Tailwind CSS
+- **RAG:** Pinecone + Gemini 2.5 Flash + LangChain
+- **Generación:** N8N + DALL-E 3 + PDFEndpoint
 - **Gestión:** UUIDs + JSON metadata
 
 ---

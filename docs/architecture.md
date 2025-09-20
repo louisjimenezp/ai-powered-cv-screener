@@ -80,9 +80,9 @@ async def delete_by_uuid(uuid: str) -> bool
 - **Ya implementado** - No reinventar la rueda
 
 **Configuración actual:**
-- **Prioridad:** OpenRouter si está configurado
+- **Prioridad:** OpenRouter con Gemini 2.5 Flash
 - **Fallback:** OpenAI si no hay OpenRouter
-- **Embeddings:** Siempre OpenAI (consistencia)
+- **Embeddings:** Siempre OpenAI (consistencia con Pinecone)
 
 ## 🔄 Flujo de Datos
 

@@ -9,17 +9,6 @@ from main import app
 def client():
     return TestClient(app)
 
-def test_get_screening_criteria(client):
-    """Test para obtener criterios de screening"""
-    response = client.get("/api/v1/screening/criteria")
-    assert response.status_code == 200
-    data = response.json()
-    assert "technical_skills" in data
-    assert "soft_skills" in data
-    assert "experience_levels" in data
-    assert isinstance(data["technical_skills"], list)
-    assert isinstance(data["soft_skills"], list)
-    assert isinstance(data["experience_levels"], list)
 
 def test_analyze_cv(client):
     """Test para análisis de CV"""
