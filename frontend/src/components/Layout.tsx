@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { FileText, Upload, MessageSquare, BarChart3, Menu, X, PanelLeftClose } from 'lucide-react'
+import { FileText, Upload, MessageSquare, BarChart3, Menu, X, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -110,7 +110,7 @@ export default function Layout({ children }: LayoutProps) {
                     className="p-1 rounded-md hover:bg-gray-100 transition-colors"
                     aria-label="Colapsar sidebar"
                   >
-                    <X className="h-5 w-5 text-gray-600" />
+                    <PanelLeftClose className="h-5 w-5 text-gray-600" />
                   </button>
                 </>
               )}
@@ -120,7 +120,7 @@ export default function Layout({ children }: LayoutProps) {
                   className="p-1 rounded-md hover:bg-gray-100 transition-colors"
                   aria-label="Expandir sidebar"
                 >
-                  <Menu className="h-5 w-5 text-gray-600" />
+                  <PanelLeftOpen className="h-5 w-5 text-gray-600" />
                 </button>
               )}
             </>
