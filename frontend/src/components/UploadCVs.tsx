@@ -118,7 +118,7 @@ export default function UploadCVs() {
       {/* Upload Area */}
       <div className="card">
         <div
-          className={`relative border-2 border-dashed rounded-lg p-12 text-center transition-colors duration-200 ${
+          className={`relative border-2 border-dashed rounded-lg p-6 md:p-8 text-center transition-colors duration-200 ${
             dragActive
               ? 'border-primary-400 bg-primary-50'
               : 'border-gray-300 hover:border-gray-400'
@@ -136,16 +136,16 @@ export default function UploadCVs() {
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
           
-          <Upload className="mx-auto h-12 w-12 text-gray-400" />
-          <div className="mt-4">
-            <p className="text-lg font-medium text-gray-900">
+          <Upload className="mx-auto h-8 w-8 md:h-10 md:w-10 text-gray-400" />
+          <div className="mt-3 md:mt-3">
+            <p className="text-base md:text-base font-medium text-gray-900">
               Drag and drop your PDF file here
             </p>
             <p className="mt-1 text-sm text-gray-500">
               or click to select a file
             </p>
           </div>
-          <div className="mt-4">
+          <div className="mt-3 md:mt-3">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
