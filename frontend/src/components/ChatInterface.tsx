@@ -3,6 +3,7 @@ import { useCVScreener } from '../contexts/CVScreenerContext'
 import { Send, Bot, User, FileText, AlertCircle } from 'lucide-react'
 import { cvScreenerAPI } from '../services/api'
 import { ChatResponse } from '../types'
+import ReactMarkdown from 'react-markdown'
 
 export default function ChatInterface() {
   const { state, dispatch } = useCVScreener()
@@ -152,7 +153,9 @@ export default function ChatInterface() {
                         : 'bg-gray-100 text-gray-900'
                     }`}
                   >
-                    <p className="text-sm">{message.content}</p>
+                    <div className="text-sm prose prose-sm max-w-none prose-ul:list-disc prose-li:marker:text-gray-600">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </div>
                     
                     {/* Mostrar fuentes y confianza para respuestas de IA */}
                     {message.role === 'assistant' && !message.isError && (
