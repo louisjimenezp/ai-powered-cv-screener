@@ -326,12 +326,6 @@ export interface FileMetadata {
   status: 'uploaded' | 'processing' | 'processed' | 'error'
   chunks_count?: number
   processing_errors?: string[]
-  vector_stats?: {
-    vector_count: number
-    chunk_indices: number[]
-    filenames: string[]
-    status: string
-  }
 }
 
 export interface ChatResponse {
@@ -445,7 +439,6 @@ const handleSendMessage = async () => {
 //    - Tamaño del archivo
 //    - Fecha de subida
 //    - Número de chunks procesados
-//    - Estadísticas de vectores
 // 5. Usar cvScreenerAPI.deleteCV(uuid)
 // 6. Cargar lista de archivos desde API
 // 7. Actualización en tiempo real del estado
@@ -580,7 +573,6 @@ make lint                        # Linting completo
 - [ ] Conectar ChatInterface real (eliminar simulación)
 - [ ] Mejorar UploadCVs con UUIDs y metadatos
 - [ ] Añadir funcionalidad de eliminación por UUID
-- [ ] Mostrar estadísticas de vectores
 - [ ] Cargar lista de archivos desde API
 
 ### Testing ❌ PENDIENTE
@@ -589,7 +581,7 @@ make lint                        # Linting completo
 - [ ] Probar eliminación por UUID
 - [ ] Verificar Pinecone con IDs controlados
 - [ ] Testing integral frontend-backend
-- [ ] Verificar estadísticas y metadatos
+- [ ] Verificar metadatos
 - [ ] Probar flujo completo end-to-end
 
 ---
