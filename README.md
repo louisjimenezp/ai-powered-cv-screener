@@ -20,6 +20,15 @@ Este es un monorepo que contiene:
 - **Subida de Archivos**: Procesamiento automático de PDFs
 - **Workflows N8N**: Generación automatizada de CVs de prueba
 
+## 🔧 Correcciones Recientes
+
+### Error de pypdf (✅ Resuelto)
+- **Problema**: `Error al extraer texto del PDF: name 'pypdf' is not defined`
+- **Solución**: 
+  - Agregada dependencia `pypdf = "^4.0.0"` en `backend/pyproject.toml`
+  - Agregada importación `import pypdf` en `backend/services/rag_pipeline.py`
+- **Estado**: Completamente resuelto
+
 ## 📁 Estructura del Proyecto
 
 ```

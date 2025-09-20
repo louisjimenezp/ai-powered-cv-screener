@@ -12,6 +12,7 @@ from pinecone import Pinecone
 from dotenv import load_dotenv
 from config.llm_config import get_llm_config, get_provider_info
 from pathlib import Path
+import pypdf
 
 load_dotenv()
 

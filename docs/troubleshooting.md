@@ -106,12 +106,38 @@ print(client.models.list())
 "
 ```
 
+### Error de pypdf no definido
+
+**Síntoma:** `Error al extraer texto del PDF: name 'pypdf' is not defined`
+
+**Causa:** La librería `pypdf` no está instalada o no está importada correctamente
+
+**Solución:**
+```bash
+# 1. Verificar que pypdf esté en pyproject.toml
+cd backend
+grep "pypdf" pyproject.toml
+
+# 2. Instalar dependencias
+poetry install
+
+# 3. Verificar importación en rag_pipeline.py
+grep "import pypdf" services/rag_pipeline.py
+
+# 4. Si falta la importación, agregar:
+# import pypdf
+```
+
+**Archivos afectados:**
+- `backend/pyproject.toml` - Agregar `pypdf = "^4.0.0"`
+- `backend/services/rag_pipeline.py` - Agregar `import pypdf`
+
 ### Archivos no se procesan
 
 **Síntoma:** PDFs se suben pero no aparecen en Pinecone
 
 **Posibles causas:**
-- Error en extracción de texto
+- Error en extracción de texto (pypdf no definido)
 - Error en chunking
 - Error en generación de embeddings
 - Error en guardado en Pinecone

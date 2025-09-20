@@ -346,6 +346,26 @@ curl http://localhost:8000/api/v1/health
 - Verificar conectividad a internet
 - Revisar logs del backend
 
+#### Error de pypdf no definido
+**Síntoma:** `Error al extraer texto del PDF: name 'pypdf' is not defined`
+
+**Solución:**
+```bash
+# 1. Verificar que pypdf esté en pyproject.toml
+cd backend
+grep "pypdf" pyproject.toml
+
+# 2. Instalar dependencias
+poetry install
+
+# 3. Verificar importación
+grep "import pypdf" services/rag_pipeline.py
+```
+
+**Archivos que deben contener pypdf:**
+- `backend/pyproject.toml` - Dependencia: `pypdf = "^4.0.0"`
+- `backend/services/rag_pipeline.py` - Importación: `import pypdf`
+
 ### Logs y Debugging
 
 #### Backend
