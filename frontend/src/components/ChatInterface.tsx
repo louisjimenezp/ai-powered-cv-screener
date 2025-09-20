@@ -85,7 +85,7 @@ export default function ChatInterface() {
         </p>
       </div>
 
-      <div className="card h-[calc(100vh-120px)] md:h-[calc(100vh-200px)] flex flex-col">
+      <div className="card h-[calc(100vh-100px)] md:h-[calc(100vh-140px)] flex flex-col">
         {/* Error Message */}
         {error && (
           <div className="bg-red-50 border-l-4 border-red-400 p-4">
@@ -103,7 +103,7 @@ export default function ChatInterface() {
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {state.chatMessages.length === 0 ? (
-            <div className="text-center text-gray-500 mt-8">
+            <div className="text-center text-gray-500 mt-4">
               <Bot className="mx-auto h-12 w-12 text-gray-300 mb-4" />
               <p>Hello! I'm your AI assistant for CV analysis.</p>
               <p className="mt-2">You can ask me about:</p>
