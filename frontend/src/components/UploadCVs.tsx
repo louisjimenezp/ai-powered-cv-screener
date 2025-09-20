@@ -173,9 +173,9 @@ export default function UploadCVs() {
           <button
             onClick={loadFiles}
             disabled={loadingFiles}
-            className="btn-secondary text-sm"
+            className="btn-secondary text-sm flex items-center gap-2"
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loadingFiles ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-4 w-4 ${loadingFiles ? 'animate-spin' : ''}`} />
             Actualizar
           </button>
         </div>

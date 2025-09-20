@@ -156,29 +156,24 @@ export default function ChatInterface() {
                     
                     {/* Mostrar fuentes y confianza para respuestas de IA */}
                     {message.role === 'assistant' && !message.isError && (
-                      <div className="mt-2 space-y-1">
+                      <div className="mt-2 flex items-center text-xs text-gray-500 gap-3 flex-wrap">
                         {message.confidence && (
-                          <div className="flex items-center text-xs text-gray-500">
-                            <span className="mr-1">Confianza:</span>
-                            <div className="flex items-center">
-                              <div className="w-16 bg-gray-200 rounded-full h-1.5 mr-2">
-                                <div 
-                                  className="bg-green-500 h-1.5 rounded-full" 
-                                  style={{ width: `${message.confidence * 100}%` }}
-                                ></div>
-                              </div>
-                              <span>{Math.round(message.confidence * 100)}%</span>
+                          <div className="flex items-center gap-2">
+                            <span>Confianza:</span>
+                            <div className="w-16 bg-gray-200 rounded-full h-1.5">
+                              <div 
+                                className="bg-green-500 h-1.5 rounded-full" 
+                                style={{ width: `${message.confidence * 100}%` }}
+                              ></div>
                             </div>
+                            <span>{Math.round(message.confidence * 100)}%</span>
                           </div>
                         )}
                         
                         {message.sourceFiles && message.sourceFiles.length > 0 && (
-                          <div className="text-xs text-gray-500">
-                            <div className="flex items-center mb-1">
-                              <FileText className="h-3 w-3 mr-1" />
-                              <span>Fuentes:</span>
-                            </div>
-                            <div className="flex flex-wrap gap-1">
+                          <div className="flex items-center gap-1">
+                            <FileText className="h-3 w-3" />
+                            <div className="flex gap-1">
                               {message.sourceFiles.map((file, index) => (
                                 <span
                                   key={index}
