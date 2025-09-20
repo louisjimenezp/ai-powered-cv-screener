@@ -68,7 +68,7 @@ class RAGPipeline:
             # Configurar LLM con la configuración dinámica
             llm_kwargs = {
                 "openai_api_key": self.llm_config["api_key"],
-                "model": "gpt-3.5-turbo",
+                "model": "google/gemini-2.5-flash",
                 "temperature": 0.1
             }
             
