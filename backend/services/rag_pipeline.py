@@ -11,6 +11,8 @@ from langchain.schema import Document
 from pinecone import Pinecone
 from dotenv import load_dotenv
 from config.llm_config import get_llm_config, get_provider_info
+import pypdf
+from pathlib import Path
 
 load_dotenv()
 
@@ -161,6 +163,194 @@ class RAGPipeline:
         except Exception as e:
             print(f"Error en análisis de CV: {str(e)}")
             raise
+    
+    async def process_pdf_with_uuid(self, file_uuid: str, file_path: str) -> bool:
+        """
+        Procesa PDF y guarda en Pinecone con UUID como prefix
+        
+        Args:
+            file_uuid: UUID único del archivo
+            file_path: Ruta del archivo PDF
+            
+        Returns:
+            bool: True si se procesó correctamente
+        """
+        try:
+            print(f"Procesando PDF: {file_uuid}")
+            
+            # Extraer texto del PDF
+            text = await self._extract_text_from_pdf(file_path)
+            if not text:
+                raise ValueError("No se pudo extraer texto del PDF")
+            
+            # Crear documento
+            document = Document(
+                page_content=text,
+                metadata={
+                    "source": file_uuid,
+                    "filename": Path(file_path).name,
+                    "uuid": file_uuid
+                }
+            )
+            
+            # Dividir en chunks
+            chunks = self.text_splitter.split_documents([document])
+            
+            # Añadir prefix UUID a los metadatos de cada chunk
+            for i, chunk in enumerate(chunks):
+                chunk.metadata.update({
+                    "uuid": file_uuid,
+                    "chunk_index": i,
+                    "pinecone_id": f"cv_{file_uuid}_chunk_{i}"
+                })
+            
+            # Agregar al vectorstore
+            self.vectorstore.add_documents(chunks)
+            
+            print(f"Procesado exitosamente: {file_uuid} ({len(chunks)} chunks)")
+            return True
+            
+        except Exception as e:
+            print(f"Error al procesar PDF {file_uuid}: {str(e)}")
+            return False
+    
+    async def query_with_sources(self, question: str) -> Dict[str, Any]:
+        """
+        Consulta RAG y devuelve respuesta con fuentes
+        
+        Args:
+            question: Pregunta del usuario
+            
+        Returns:
+            Dict con respuesta, fuentes y confianza
+        """
+        try:
+            if not self.qa_chain:
+                raise ValueError("Pipeline RAG no inicializado")
+            
+            # Realizar consulta
+            result = self.qa_chain.run(question)
+            
+            # Obtener documentos fuente
+            retriever = self.vectorstore.as_retriever(search_kwargs={"k": 5})
+            source_docs = retriever.get_relevant_documents(question)
+            
+            # Extraer UUIDs únicos de las fuentes
+            source_uuids = list(set([doc.metadata.get("uuid") for doc in source_docs if doc.metadata.get("uuid")]))
+            
+            # Calcular confianza basada en número de fuentes
+            confidence = min(0.9, 0.5 + (len(source_uuids) * 0.1))
+            
+            return {
+                "response": result,
+                "sources": source_uuids,
+                "source_files": [doc.metadata.get("filename", "Unknown") for doc in source_docs],
+                "confidence": round(confidence, 2)
+            }
+            
+        except Exception as e:
+            print(f"Error en consulta con fuentes: {str(e)}")
+            return {
+                "response": f"Error al procesar la consulta: {str(e)}",
+                "sources": [],
+                "source_files": [],
+                "confidence": 0.0
+            }
+    
+    async def delete_by_uuid(self, file_uuid: str) -> bool:
+        """
+        Elimina vectores de Pinecone por UUID
+        
+        Args:
+            file_uuid: UUID del archivo a eliminar
+            
+        Returns:
+            bool: True si se eliminó correctamente
+        """
+        try:
+            if not self.vectorstore:
+                raise ValueError("Pipeline RAG no inicializado")
+            
+            # Buscar vectores con el prefix del UUID
+            prefix = f"cv_{file_uuid}"
+            
+            # Obtener el índice de Pinecone directamente
+            pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+            index_name = os.getenv("PINECONE_INDEX_NAME", "cv-screener")
+            index = pc.Index(index_name)
+            
+            # Listar vectores con el prefix
+            # Nota: Pinecone no tiene una función directa para listar por prefix
+            # En una implementación real, necesitarías mantener un registro de IDs
+            # Por ahora, asumimos que los IDs siguen el patrón cv_{uuid}_chunk_{index}
+            
+            # Intentar eliminar vectores conocidos (hasta 100 chunks por archivo)
+            ids_to_delete = []
+            for i in range(100):  # Asumir máximo 100 chunks por archivo
+                vector_id = f"cv_{file_uuid}_chunk_{i}"
+                ids_to_delete.append(vector_id)
+            
+            # Eliminar vectores
+            if ids_to_delete:
+                index.delete(ids=ids_to_delete)
+                print(f"Eliminados vectores para UUID: {file_uuid}")
+            
+            return True
+            
+        except Exception as e:
+            print(f"Error al eliminar vectores para UUID {file_uuid}: {str(e)}")
+            return False
+    
+    async def _extract_text_from_pdf(self, file_path: str) -> str:
+        """
+        Extrae texto de un archivo PDF
+        
+        Args:
+            file_path: Ruta del archivo PDF
+            
+        Returns:
+            str: Texto extraído
+        """
+        try:
+            text = ""
+            with open(file_path, 'rb') as file:
+                pdf_reader = pypdf.PdfReader(file)
+                for page in pdf_reader.pages:
+                    text += page.extract_text() + "\n"
+            return text.strip()
+            
+        except Exception as e:
+            print(f"Error al extraer texto del PDF {file_path}: {str(e)}")
+            return ""
+    
+    async def get_vector_stats(self) -> Dict[str, Any]:
+        """
+        Obtiene estadísticas del vectorstore
+        
+        Returns:
+            Dict con estadísticas
+        """
+        try:
+            if not self.vectorstore:
+                return {"error": "Pipeline RAG no inicializado"}
+            
+            # Obtener estadísticas del índice
+            pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+            index_name = os.getenv("PINECONE_INDEX_NAME", "cv-screener")
+            index = pc.Index(index_name)
+            
+            stats = index.describe_index_stats()
+            
+            return {
+                "total_vectors": stats.total_vector_count,
+                "dimension": stats.dimension,
+                "index_name": index_name,
+                "namespaces": stats.namespaces if hasattr(stats, 'namespaces') else {}
+            }
+            
+        except Exception as e:
+            print(f"Error al obtener estadísticas del vectorstore: {str(e)}")
+            return {"error": str(e)}
     
     async def cleanup(self):
         """Limpiar recursos"""

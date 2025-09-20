@@ -5,6 +5,8 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from typing import List, Dict, Any
 from pydantic import BaseModel
 import os
+from services.file_manager import FileManager
+from services.rag_pipeline import RAGPipeline
 
 router = APIRouter()
 
@@ -57,30 +59,175 @@ async def analyze_cv(request: CVScreeningRequest) -> CVScreeningResponse:
         raise HTTPException(status_code=500, detail=f"Error al analizar CV: {str(e)}")
 
 @router.post("/screening/upload")
-async def upload_cv(file: UploadFile = File(...)) -> Dict[str, str]:
+async def upload_cv(file: UploadFile = File(...)) -> Dict[str, Any]:
     """
-    Subir un archivo CV para procesamiento
+    Subir un archivo CV para procesamiento con UUID
     """
     # Verificar que sea un archivo PDF
     if not file.filename.lower().endswith('.pdf'):
         raise HTTPException(status_code=400, detail="Solo se permiten archivos PDF")
     
     try:
-        # Guardar el archivo en la carpeta de datos
-        upload_path = os.path.join("../../data/cvs", file.filename)
-        os.makedirs(os.path.dirname(upload_path), exist_ok=True)
+        # Inicializar FileManager
+        file_manager = FileManager()
         
-        with open(upload_path, "wb") as buffer:
-            content = await file.read()
-            buffer.write(content)
+        # Guardar archivo y generar UUID
+        file_uuid = await file_manager.save_file_with_metadata(file)
+        
+        # Obtener pipeline RAG (asumiendo que está inicializado globalmente)
+        # En una implementación real, esto vendría del contexto de la aplicación
+        from main import rag_pipeline
+        
+        if not rag_pipeline:
+            # Si no está inicializado, actualizar estado de error
+            await file_manager.update_file_metadata(file_uuid, {
+                "status": "error",
+                "processing_errors": ["Pipeline RAG no inicializado"]
+            })
+            raise HTTPException(status_code=500, detail="Pipeline RAG no disponible")
+        
+        # Actualizar estado a procesando
+        await file_manager.update_file_metadata(file_uuid, {
+            "status": "processing"
+        })
+        
+        # Obtener ruta del archivo
+        file_path = await file_manager.get_file_path(file_uuid)
+        if not file_path:
+            raise HTTPException(status_code=500, detail="Archivo no encontrado")
+        
+        # Procesar con RAG
+        success = await rag_pipeline.process_pdf_with_uuid(file_uuid, str(file_path))
+        
+        if success:
+            # Obtener metadatos actualizados para contar chunks
+            metadata = await file_manager.get_file_metadata(file_uuid)
+            chunks_count = metadata.get("chunks_count", 0)
+            
+            # Actualizar estado a procesado
+            await file_manager.update_file_metadata(file_uuid, {
+                "status": "processed",
+                "chunks_count": chunks_count
+            })
+            
+            return {
+                "message": "CV subido y procesado exitosamente",
+                "uuid": file_uuid,
+                "filename": file.filename,
+                "status": "processed",
+                "chunks_count": chunks_count
+            }
+        else:
+            # Actualizar estado a error
+            await file_manager.update_file_metadata(file_uuid, {
+                "status": "error",
+                "processing_errors": ["Error en procesamiento RAG"]
+            })
+            
+            return {
+                "message": "CV subido pero error en procesamiento",
+                "uuid": file_uuid,
+                "filename": file.filename,
+                "status": "error"
+            }
+            
+    except Exception as e:
+        print(f"Error en upload_cv: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error al subir CV: {str(e)}")
+
+@router.delete("/screening/upload/{uuid}")
+async def delete_cv(uuid: str) -> Dict[str, str]:
+    """
+    Eliminar un archivo CV y sus vectores de Pinecone
+    """
+    try:
+        # Inicializar FileManager
+        file_manager = FileManager()
+        
+        # Verificar que el archivo existe
+        if not await file_manager.file_exists(uuid):
+            raise HTTPException(status_code=404, detail="Archivo no encontrado")
+        
+        # Obtener pipeline RAG
+        from main import rag_pipeline
+        
+        if not rag_pipeline:
+            raise HTTPException(status_code=500, detail="Pipeline RAG no disponible")
+        
+        # Eliminar vectores de Pinecone
+        pinecone_success = await rag_pipeline.delete_by_uuid(uuid)
+        
+        # Eliminar archivo físico y metadatos
+        file_success = await file_manager.delete_file_and_metadata(uuid)
+        
+        if pinecone_success and file_success:
+            return {
+                "message": "Archivo eliminado exitosamente",
+                "uuid": uuid,
+                "status": "deleted"
+            }
+        else:
+            return {
+                "message": "Archivo eliminado con advertencias",
+                "uuid": uuid,
+                "status": "partial_deletion",
+                "pinecone_deleted": str(pinecone_success),
+                "file_deleted": str(file_success)
+            }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error en delete_cv: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error al eliminar CV: {str(e)}")
+
+@router.get("/screening/upload/{uuid}")
+async def get_cv_metadata(uuid: str) -> Dict[str, Any]:
+    """
+    Obtener metadatos de un archivo CV
+    """
+    try:
+        # Inicializar FileManager
+        file_manager = FileManager()
+        
+        # Obtener metadatos
+        metadata = await file_manager.get_file_metadata(uuid)
+        
+        if not metadata:
+            raise HTTPException(status_code=404, detail="Archivo no encontrado")
+        
+        return metadata
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error en get_cv_metadata: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error al obtener metadatos: {str(e)}")
+
+@router.get("/screening/upload")
+async def list_cvs() -> Dict[str, Any]:
+    """
+    Listar todos los archivos CV procesados
+    """
+    try:
+        # Inicializar FileManager
+        file_manager = FileManager()
+        
+        # Obtener lista de archivos
+        files = await file_manager.list_processed_files()
+        
+        # Obtener estadísticas
+        stats = file_manager.get_stats()
         
         return {
-            "message": "CV subido exitosamente",
-            "filename": file.filename,
-            "path": upload_path
+            "files": files,
+            "stats": stats,
+            "total": len(files)
         }
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al subir CV: {str(e)}")
+        print(f"Error en list_cvs: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error al listar CVs: {str(e)}")
 
 @router.get("/screening/criteria")
 async def get_screening_criteria() -> Dict[str, List[str]]:

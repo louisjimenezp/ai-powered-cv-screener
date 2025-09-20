@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
 
-from endpoints import cv_screener, health
+from endpoints import cv_screener, health, chat
 from services.rag_pipeline import RAGPipeline
 
 # Cargar variables de entorno
@@ -48,6 +48,7 @@ app.add_middleware(
 # Incluir routers
 app.include_router(health.router, prefix="/api/v1", tags=["health"])
 app.include_router(cv_screener.router, prefix="/api/v1", tags=["cv-screener"])
+app.include_router(chat.router, prefix="/api/v1", tags=["chat"])
 
 @app.get("/")
 async def root():
