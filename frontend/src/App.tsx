@@ -5,6 +5,7 @@ import Layout from './components/Layout'
 import Dashboard from './components/Dashboard'
 import UploadCVs from './components/UploadCVs'
 import ChatInterface from './components/ChatInterface'
+import ApiDebugInfo from './components/ApiDebugInfo'
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
             <Route path="/chat" element={<ChatInterface />} />
           </Routes>
         </Layout>
+        <ApiDebugInfo />
       </Router>
     </CVScreenerProvider>
   )
