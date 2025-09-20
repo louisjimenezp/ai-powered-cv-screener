@@ -1,0 +1,417 @@
+{
+  "name": "CV Creator",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -80
+      ],
+      "id": "5d37e226-df17-43f6-a276-9477406b70ff",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fddc25b4-d151-4f92-9fb0-6ab1cbaa1022",
+              "name": "user_message",
+              "value": "Dame 30 curriculumns",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -160,
+        -80
+      ],
+      "id": "aa2ea3e1-fcfd-4c21-b6da-c3fff262823c",
+      "name": "Request"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.user_message }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Necesito que actúes como un agente generador de currículums ficticios. Tu propósito es crear perfiles profesionales simulados con estructura y contenido realistas, específicamente diseñados para ser transformados posteriormente en documentos PDF.\n\n## CONTEXTO OPERACIONAL\nOperarás en entornos de desarrollo y pruebas, generando datos de CV para la validación de sistemas, demos o entrenamiento. Tu audiencia principal son desarrolladores y testers.\n\n## INSTRUCCIONES CLAVE\n1.  **Generación Múltiple:** Genera una lista (array) de currículums completamente ficticios. Por defecto, genera UN (1) CV, a menos que el usuario especifique un número diferente.\n2.  **Contenido y Realismo:** Cada CV debe contener datos coherentes, realistas y en inglés.\n3.  **Secciones Obligatorias:** Incluye siempre las siguientes secciones con el detalle que se especifica:\n    *   `fullName`: (String) Nombre y apellidos completos.\n    *   `title`: (String) Título profesional o puesto deseado.\n    *   `summary`: (String) Resumen profesional conciso.\n    *   `experience`: (Array de Objetos) Mínimo 2 entradas. Cada objeto de experiencia debe contener:\n        *   `jobTitle`: (String) Puesto de trabajo.\n        *   `company`: (String) Nombre de la empresa.\n        *   `startDate`: (String) Fecha de inicio (formato 'YYYY-MM').\n        *   `endDate`: (String) Fecha de fin (formato 'YYYY-MM' o \"Present\" si es actual).\n        *   `responsibilities`: (Array de Strings) Lista de responsabilidades y logros clave (mínimo 3 por experiencia).\n    *   `education`: (Array de Objetos) Mínimo 1 entrada. Cada objeto de educación debe contener:\n        *   `degree`: (String) Título o grado.\n        *   `institution`: (String) Nombre de la institución educativa.\n        *   `graduationDate`: (String) Fecha de graduación (formato 'YYYY-MM').\n    *   `skills`: (Array de Strings) Mínimo 5 habilidades relevantes al perfil, categorizadas si es posible (ej. Technical Skills, Soft Skills).\n    *   `languages`: (Array de Objetos) Mínimo 1 idioma. Cada objeto de idioma debe contener:\n        *   `language`: (String) Nombre del idioma.\n        *   `proficiency`: (String) Nivel de dominio (ej. \"Native\", \"Fluent\", \"Intermediate\", \"Basic\").\n4.  **Longitud de Contenido:** El contenido textual de cada currículum (excluyendo la estructura JSON) no debe exceder las 1000 palabras (equivalente a dos páginas estándar de CV).\n5.  **Variación:** Varía nombres, empresas, títulos, fechas y detalles en cada CV generado para evitar repeticiones, especialmente si se solicitan múltiples CVs.\n\n## EJEMPLOS CONCRETOS\n**Usuario:** \"Crea 2 CVs ficticios: uno para un desarrollador de software y otro para un gerente de marketing.\"\n**Agente:** [Array de 2 JSONs de CV, uno para \"Sofía García, Senior Software Developer\" y otro para \"Carlos Ruiz, Marketing Manager\"]\n\n**Usuario:** \"Necesito 1 CV ficticio para un ingeniero de datos.\"\n**Agente:** [Array de 1 JSON de CV para \"Elena Torres, Data Engineer\"]\n\n## FORMATO DE RESPUESTA\nDevuelve la información de los currículums exclusivamente como un **array de objetos JSON**. Cada objeto dentro del array representará un CV individual y debe seguir la estructura predefinida en las \"INSTRUCCIONES CLAVE\". El JSON debe estar completamente en inglés.\n\n```json\n[\n  {\n    \"fullName\": \"John Doe\",\n    \"title\": \"Senior Software Engineer\",\n    \"summary\": \"Highly skilled software engineer with 10+ years of experience in developing scalable web applications and leading cross-functional teams...\",\n    \"experience\": [\n      {\n        \"jobTitle\": \"Lead Software Developer\",\n        \"company\": \"Tech Solutions Inc.\",\n        \"startDate\": \"2020-01\",\n        \"endDate\": \"Present\",\n        \"responsibilities\": [\n          \"Led a team of 5 developers in the design and implementation of new microservices.\",\n          \"Optimized database queries, reducing response times by 30%.\",\n          \"Mentored junior developers and conducted code reviews.\"\n        ]\n      },\n      {\n        \"jobTitle\": \"Software Engineer\",\n        \"company\": \"Global Innovations\",\n        \"startDate\": \"2015-03\",\n        \"endDate\": \"2019-12\",\n        \"responsibilities\": [\n          \"Developed and maintained RESTful APIs for client-side applications.\",\n          \"Collaborated with product owners to define project requirements.\",\n          \"Implemented automated testing frameworks.\"\n        ]\n      }\n    ],\n    \"education\": [\n      {\n        \"degree\": \"Master of Science in Computer Science\",\n        \"institution\": \"University of Technology\",\n        \"graduationDate\": \"2014-06\"\n      }\n    ],\n    \"skills\": [\n      \"Python\",\n      \"Java\",\n      \"AWS\",\n      \"Docker\",\n      \"Kubernetes\",\n      \"Agile Methodologies\",\n      \"Problem Solving\"\n    ],\n    \"languages\": [\n      {\n        \"language\": \"English\",\n        \"proficiency\": \"Native\"\n      },\n      {\n        \"language\": \"Spanish\",\n        \"proficiency\": \"Intermediate\"\n      }\n    ]\n  }\n]\n```\n\n## RESTRICCIONES\n1.  No incluyas información personal real, sensible o identificable.\n2.  El contenido textual total de cada CV (excluyendo la estructura JSON) no debe exceder las 1000 palabras.\n3.  Todo el contenido del JSON (claves y valores) debe estar completamente en inglés.\n4.  La respuesta debe ser un array de objetos JSON, incluso si solo se solicita un CV."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        -80
+      ],
+      "id": "f12ed553-0821-4ac1-93fa-ad5584485089",
+      "name": "AI Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-flash",
+        "options": {
+          "maxRetries": 8
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        176
+      ],
+      "id": "19524f15-88b3-4b76-b1c6-ffc03b0de895",
+      "name": "Gemini 2.5 Flash",
+      "credentials": {
+        "openRouterApi": {
+          "id": "caGZ9VjxPEq1qaoH",
+          "name": "Louis - OpenRouter n8nLouKey"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"title\": \"CV Array Schema\",\n  \"description\": \"Schema for an array of fictional CVs.\",\n  \"type\": \"array\",\n  \"items\": {\n    \"title\": \"CV Schema\",\n    \"description\": \"Schema for a single fictional CV.\",\n    \"type\": \"object\",\n    \"required\": [\n      \"fullName\",\n      \"title\",\n      \"summary\",\n      \"experience\",\n      \"education\",\n      \"skills\",\n      \"languages\"\n    ],\n    \"properties\": {\n      \"fullName\": {\n        \"type\": \"string\",\n        \"description\": \"Full name of the individual.\"\n      },\n      \"title\": {\n        \"type\": \"string\",\n        \"description\": \"Professional title or desired position.\"\n      },\n      \"summary\": {\n        \"type\": \"string\",\n        \"description\": \"Concise professional summary.\"\n      },\n      \"experience\": {\n        \"type\": \"array\",\n        \"description\": \"Array of work experiences (minimum 2 entries).\",\n        \"minItems\": 2,\n        \"items\": {\n          \"type\": \"object\",\n          \"required\": [\n            \"jobTitle\",\n            \"company\",\n            \"startDate\",\n            \"endDate\",\n            \"responsibilities\"\n          ],\n          \"properties\": {\n            \"jobTitle\": {\n              \"type\": \"string\",\n              \"description\": \"Job title held.\"\n            },\n            \"company\": {\n              \"type\": \"string\",\n              \"description\": \"Name of the company.\"\n            },\n            \"startDate\": {\n              \"type\": \"string\",\n              \"pattern\": \"^\\\\d{4}-\\\\d{2}$\",\n              \"description\": \"Start date in 'YYYY-MM' format.\"\n            },\n            \"endDate\": {\n              \"type\": \"string\",\n              \"pattern\": \"^(\\\\d{4}-\\\\d{2}|Present)$\",\n              \"description\": \"End date in 'YYYY-MM' format or 'Present'.\"\n            },\n            \"responsibilities\": {\n              \"type\": \"array\",\n              \"description\": \"List of key responsibilities and achievements (minimum 3).\",\n              \"minItems\": 3,\n              \"items\": {\n                \"type\": \"string\"\n              }\n            }\n          }\n        }\n      },\n      \"education\": {\n        \"type\": \"array\",\n        \"description\": \"Array of educational background (minimum 1 entry).\",\n        \"minItems\": 1,\n        \"items\": {\n          \"type\": \"object\",\n          \"required\": [\n            \"degree\",\n            \"institution\",\n            \"graduationDate\"\n          ],\n          \"properties\": {\n            \"degree\": {\n              \"type\": \"string\",\n              \"description\": \"Degree or qualification obtained.\"\n            },\n            \"institution\": {\n              \"type\": \"string\",\n              \"description\": \"Name of the educational institution.\"\n            },\n            \"graduationDate\": {\n              \"type\": \"string\",\n              \"pattern\": \"^\\\\d{4}-\\\\d{2}$\",\n              \"description\": \"Graduation date in 'YYYY-MM' format.\"\n            }\n          }\n        }\n      },\n      \"skills\": {\n        \"type\": \"array\",\n        \"description\": \"Array of relevant skills (minimum 5 entries).\",\n        \"minItems\": 5,\n        \"items\": {\n          \"type\": \"string\"\n        }\n      },\n      \"languages\": {\n        \"type\": \"array\",\n        \"description\": \"Array of languages known (minimum 1 entry).\",\n        \"minItems\": 1,\n        \"items\": {\n          \"type\": \"object\",\n          \"required\": [\n            \"language\",\n            \"proficiency\"\n          ],\n          \"properties\": {\n            \"language\": {\n              \"type\": \"string\",\n              \"description\": \"Name of the language.\"\n            },\n            \"proficiency\": {\n              \"type\": \"string\",\n              \"enum\": [\n                \"Native\",\n                \"Fluent\",\n                \"Intermediate\",\n                \"Basic\"\n              ],\n              \"description\": \"Proficiency level in the language.\"\n            }\n          }\n        }\n      }\n    }\n  }\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        160
+      ],
+      "id": "dc0c4a7a-49e2-4e1e-8b34-835be2445fa4",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        448,
+        -80
+      ],
+      "id": "49ac62da-94aa-46bb-abf6-81e455c4d6c1",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        288,
+        -80
+      ],
+      "id": "53380231-d92c-4f08-869f-145319e59ba0",
+      "name": "Posts Split Out"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build HTML CV document (new structure, EN)\nconst item = $('Loop Over Items').first();\n\n// Support CV object at root\nconst cv = item.json || {};\n\n// Resolve optional binary profile image (first binary key found)\nlet profileImageSrc = '';\nconst bin = $input.first().binary.data || {};\nconst mime = bin.mimeType || 'image/png';\nif (bin.data) {\n  item.json.profile_image_base64 = bin.data;\n  profileImageSrc = `data:${mime};base64,${bin.data}`;\n}\n\n// Helpers\nconst fmtDate = (ym) => {\n  if (!ym || String(ym).toLowerCase() === 'present') return 'Present';\n  const [y, m = '01'] = String(ym).split('-');\n  const d = new Date(Number(y), Number(m) - 1, 1);\n  if (Number.isNaN(d.getTime())) return ym; // Fallback if parsing fails\n  return new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(d);\n};\n\nconst esc = (s) =>\n  String(s ?? '')\n    .replace(/&/g, '&amp;')\n    .replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;');\n\n// Sections\nconst headerImgHTML = profileImageSrc\n  ? `<img src=\"${profileImageSrc}\" alt=\"Profile photo\" class=\"profile-pic\">`\n  : '';\n\nconst experienceHTML = Array.isArray(cv.experience)\n  ? cv.experience\n      .map((exp) => {\n        const resps = Array.isArray(exp.responsibilities)\n          ? exp.responsibilities.map((r) => `<li>${esc(r)}</li>`).join('')\n          : '';\n        return `\n          <div class=\"experience-item\">\n            <h3>${esc(exp.jobTitle)} at ${esc(exp.company)}</h3>\n            <p>${esc(fmtDate(exp.startDate))} - ${esc(fmtDate(exp.endDate))}</p>\n            ${resps ? `<ul>${resps}</ul>` : ''}\n          </div>\n        `;\n      })\n      .join('')\n  : '';\n\nconst educationHTML = Array.isArray(cv.education)\n  ? cv.education\n      .map(\n        (edu) => `\n        <div class=\"education-item\">\n          <h3>${esc(edu.degree)} - ${esc(edu.institution)}</h3>\n          <p>Graduation: ${esc(fmtDate(edu.graduationDate))}</p>\n        </div>\n      `\n      )\n      .join('')\n  : '';\n\nconst skillsHTML = Array.isArray(cv.skills)\n  ? cv.skills.map((s) => `<li>${esc(s)}</li>`).join('')\n  : '';\n\nconst languagesHTML = Array.isArray(cv.languages)\n  ? cv.languages\n      .map((l) => `<li>${esc(l.language)} (${esc(l.proficiency)})</li>`)\n      .join('')\n  : '';\n\n// Build HTML string\nconst html = `<!DOCTYPE html>\n<html>\n<head>\n  <meta charset=\"utf-8\">\n  <title>CV of ${esc(cv.fullName || '')}</title>\n  <style>\n    /* CV styles (English) */\n    body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; font-size: 10pt; }\n    .container { width: 100%; max-width: 210mm; margin: 0 auto; padding: 15mm; box-sizing: border-box; }\n    .header { text-align: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; }\n    .header img { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 2px solid #0056b3; }\n    .header h1 { margin: 0; color: #0056b3; font-size: 20pt; }\n    .header p { margin: 5px 0; font-size: 10pt; color: #666; }\n    .section { margin-bottom: 20px; page-break-inside: avoid; }\n    .section h2 { border-bottom: 2px solid #0056b3; padding-bottom: 5px; margin-bottom: 15px; color: #0056b3; font-size: 14pt; }\n    .experience-item, .education-item { margin-bottom: 10px; padding-left: 10px; border-left: 2px solid #f0f0f0; }\n    .experience-item h3, .education-item h3 { margin: 0 0 3px 0; color: #555; font-size: 11pt; }\n    .experience-item p, .education-item p { margin: 0; font-size: 9pt; }\n    .skills-list ul, .languages-list ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; }\n    .skills-list li, .languages-list li { background: #e9f7ff; border: 1px solid #cceeff; border-radius: 3px; padding: 4px 8px; margin: 4px; font-size: 8pt; white-space: nowrap; }\n  </style>\n</head>\n<body>\n  <div class=\"container\">\n    <div class=\"header\">\n      ${headerImgHTML}\n      <h1>${esc(cv.fullName || '')}</h1>\n      <p>${esc(cv.title || '')}</p>\n      <p>${esc(cv.summary || '')}</p>\n    </div>\n\n    <div class=\"section\">\n      <h2>Work Experience</h2>\n      ${experienceHTML || '<p>No experience provided.</p>'}\n    </div>\n\n    <div class=\"section\">\n      <h2>Education</h2>\n      ${educationHTML || '<p>No education provided.</p>'}\n    </div>\n\n    <div class=\"section skills-list\">\n      <h2>Skills</h2>\n      <ul>\n        ${skillsHTML || ''}\n      </ul>\n    </div>\n\n    <div class=\"section languages-list\">\n      <h2>Languages</h2>\n      <ul>\n        ${languagesHTML || ''}\n      </ul>\n    </div>\n  </div>\n</body>\n</html>`;\n\n// Return payload\nreturn [{ json: { cv, html } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        832,
+        -64
+      ],
+      "id": "2e9ea626-24b4-4ea8-93f0-2ae8dee8b2b2",
+      "name": "Build HTML CV"
+    },
+    {
+      "parameters": {
+        "name": "={{ $now.format('yyyymmdd') }}_{{ $('Build HTML CV').item.json.cv.fullName.replace(\" \",\"_\").toLowerCase() }}.pdf",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1Xkb9n0u8Rog-dV2MCgynujKOrNZ05C3J",
+          "mode": "list",
+          "cachedResultName": "Drive LeadTech",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1Xkb9n0u8Rog-dV2MCgynujKOrNZ05C3J"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1312,
+        -64
+      ],
+      "id": "0b4a6596-f406-49a0-a85c-3dfba42505c0",
+      "name": "Upload to Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "qIG5XYxT169OKivi",
+          "name": "Louis - Google Drive"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdfendpoint.com/v1/convert",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer pdfe_live_b16350b849c4294e8dc60e1b2f646d2c7d1a"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sandbox\": true,\n  \"orientation\": \"vertical\",\n  \"page_size\": \"A4\",\n  \"margin_top\": \"2cm\",\n  \"margin_bottom\": \"2cm\",\n  \"margin_left\": \"2cm\",\n  \"margin_right\": \"2cm\",\n  \"html\": {{ $json.html.toJsonString() }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        992,
+        -64
+      ],
+      "id": "9920b85c-0650-4229-ae3b-d7f3bbd563b6",
+      "name": "Create PDF"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.data.url }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1152,
+        -64
+      ],
+      "id": "5d65fdf1-ed8d-4d9d-ba12-91ba2a1ffcbf",
+      "name": "Get PDF"
+    },
+    {
+      "parameters": {
+        "chatId": "=7064037541",
+        "text": "=Ya se han subido los CVs.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        -240
+      ],
+      "id": "8ebff4d1-da7c-4a88-8ba6-6e8f2f3726c3",
+      "name": "Notify",
+      "webhookId": "741da4d0-dc52-48f2-b64a-f6512c6322ff",
+      "credentials": {
+        "telegramApi": {
+          "id": "y4rDRoWElfBOxKAO",
+          "name": "Louis - Telegram - LouAIAgentBot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "prompt": "=Retrato profesional de {{ $json.fullName }}, {{ $json.title }}, estilo fotográfico realista, fondo neutro, iluminación suave",
+        "options": {
+          "dalleQuality": "standard",
+          "size": "1024x1024",
+          "style": "natural"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        672,
+        -64
+      ],
+      "id": "9799913d-5aba-48b6-9566-a01d096b20e6",
+      "name": "OpenAI DALL-E 3",
+      "credentials": {
+        "openAiApi": {
+          "id": "HYSlsuAUC2pqNrus",
+          "name": "Louis - OpenAi n8nLouKey"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini 2.5 Flash": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Posts Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Notify",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI DALL-E 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Posts Split Out": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build HTML CV": {
+      "main": [
+        [
+          {
+            "node": "Create PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Drive": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create PDF": {
+      "main": [
+        [
+          {
+            "node": "Get PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get PDF": {
+      "main": [
+        [
+          {
+            "node": "Upload to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI DALL-E 3": {
+      "main": [
+        [
+          {
+            "node": "Build HTML CV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "eb866654-eceb-41ed-b057-f9b0135c6306",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "df01e15fa14f5917c8aa79a9379e7c6b0cca074ed9599541455ff4910531c7de"
+  },
+  "id": "TK3JM756ZkNPvLYS",
+  "tags": []
+}
