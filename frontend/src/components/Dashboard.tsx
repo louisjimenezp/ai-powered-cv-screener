@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { cvScreenerAPI } from '../services/api'
 import { FileText, CheckCircle, XCircle, TrendingUp, RefreshCw } from 'lucide-react'
 import { FileMetadata } from '../types'
+import { ROUTES } from '../utils/routes'
 
 export default function Dashboard() {
   const [files, setFiles] = useState<FileMetadata[]>([])
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   // Load files from backend when component mounts
   useEffect(() => {
@@ -137,14 +140,17 @@ export default function Dashboard() {
             Quick Actions
           </h3>
           <div className="space-y-3">
-            <button className="w-full btn-primary text-left">
-              Upload New CV
-            </button>
-            <button className="w-full btn-secondary text-left">
-              Create Job Description
-            </button>
-            <button className="w-full btn-secondary text-left">
+            <button 
+              onClick={() => navigate(ROUTES.CHAT)}
+              className="w-full btn-primary text-left"
+            >
               Start AI Chat
+            </button>
+            <button 
+              onClick={() => navigate(ROUTES.UPLOAD)}
+              className="w-full btn-secondary text-left"
+            >
+              Upload New CV
             </button>
           </div>
         </div>

@@ -1,4 +1,3 @@
-import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { CVScreenerProvider } from './contexts/CVScreenerContext'
 import Layout from './components/Layout'
@@ -6,6 +5,7 @@ import Dashboard from './components/Dashboard'
 import UploadCVs from './components/UploadCVs'
 import ChatInterface from './components/ChatInterface'
 import ApiDebugInfo from './components/ApiDebugInfo'
+import { ROUTES } from './utils/routes'
 
 function App() {
   return (
@@ -13,9 +13,9 @@ function App() {
       <Router>
         <Layout>
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/upload" element={<UploadCVs />} />
-            <Route path="/chat" element={<ChatInterface />} />
+            <Route path={ROUTES.DASHBOARD} element={<Dashboard />} />
+            <Route path={ROUTES.CHAT} element={<ChatInterface />} />
+            <Route path={ROUTES.UPLOAD} element={<UploadCVs />} />
           </Routes>
         </Layout>
         <ApiDebugInfo />

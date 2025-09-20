@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { FileText, Upload, MessageSquare, BarChart3, Menu, X, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { NAVIGATION_ITEMS } from '../utils/routes'
 
 interface LayoutProps {
   children: React.ReactNode
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: BarChart3 },
-  { name: 'Upload CVs', href: '/upload', icon: Upload },
-  { name: 'AI Chat', href: '/chat', icon: MessageSquare },
+  { name: NAVIGATION_ITEMS[0].name, href: NAVIGATION_ITEMS[0].href, icon: BarChart3 },
+  { name: NAVIGATION_ITEMS[1].name, href: NAVIGATION_ITEMS[1].href, icon: MessageSquare },
+  { name: NAVIGATION_ITEMS[2].name, href: NAVIGATION_ITEMS[2].href, icon: Upload },
 ]
 
 export default function Layout({ children }: LayoutProps) {
