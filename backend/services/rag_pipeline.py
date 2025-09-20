@@ -164,7 +164,7 @@ class RAGPipeline:
             print(f"Error en análisis de CV: {str(e)}")
             raise
     
-    async def process_pdf_with_uuid(self, file_uuid: str, file_path: str) -> bool:
+    async def process_pdf_with_uuid(self, file_uuid: str, file_path: str) -> int:
         """
         Procesa PDF y guarda en Pinecone con UUID como prefix
         
@@ -173,7 +173,7 @@ class RAGPipeline:
             file_path: Ruta del archivo PDF
             
         Returns:
-            bool: True si se procesó correctamente
+            int: Número de chunks procesados, 0 si hubo error
         """
         try:
             print(f"Procesando PDF: {file_uuid}")
@@ -211,11 +211,11 @@ class RAGPipeline:
             self.vectorstore.add_documents(documents=chunks, ids=ids)
             
             print(f"Procesado exitosamente: {file_uuid} ({len(chunks)} chunks)")
-            return True
+            return len(chunks)
             
         except Exception as e:
             print(f"Error al procesar PDF {file_uuid}: {str(e)}")
-            return False
+            return 0
     
     async def query_with_sources(self, question: str) -> Dict[str, Any]:
         """

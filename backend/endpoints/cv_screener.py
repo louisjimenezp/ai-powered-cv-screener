@@ -97,14 +97,10 @@ async def upload_cv(file: UploadFile = File(...)) -> Dict[str, Any]:
             raise HTTPException(status_code=500, detail="Archivo no encontrado")
         
         # Procesar con RAG
-        success = await rag_pipeline.process_pdf_with_uuid(file_uuid, str(file_path))
+        chunks_count = await rag_pipeline.process_pdf_with_uuid(file_uuid, str(file_path))
         
-        if success:
-            # Obtener metadatos actualizados para contar chunks
-            metadata = await file_manager.get_file_metadata(file_uuid)
-            chunks_count = metadata.get("chunks_count", 0)
-            
-            # Actualizar estado a procesado
+        if chunks_count > 0:
+            # Actualizar estado a procesado con el número real de chunks
             await file_manager.update_file_metadata(file_uuid, {
                 "status": "processed",
                 "chunks_count": chunks_count
