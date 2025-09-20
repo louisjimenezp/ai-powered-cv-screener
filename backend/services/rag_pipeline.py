@@ -196,16 +196,19 @@ class RAGPipeline:
             # Dividir en chunks
             chunks = self.text_splitter.split_documents([document])
             
-            # Añadir prefix UUID a los metadatos de cada chunk
+            # Añadir metadatos a cada chunk
             for i, chunk in enumerate(chunks):
                 chunk.metadata.update({
                     "uuid": file_uuid,
                     "chunk_index": i,
-                    "pinecone_id": f"cv_{file_uuid}_chunk_{i}"
+                    "filename": Path(file_path).name
                 })
             
-            # Agregar al vectorstore
-            self.vectorstore.add_documents(chunks)
+            # Generar IDs con el formato cv_{file_uuid}_chunk_{index}
+            ids = [f"cv_{file_uuid}_chunk_{i}" for i in range(len(chunks))]
+            
+            # Agregar al vectorstore con IDs controlados
+            self.vectorstore.add_documents(documents=chunks, ids=ids)
             
             print(f"Procesado exitosamente: {file_uuid} ({len(chunks)} chunks)")
             return True
@@ -259,7 +262,7 @@ class RAGPipeline:
     
     async def delete_by_uuid(self, file_uuid: str) -> bool:
         """
-        Elimina vectores de Pinecone por UUID
+        Elimina vectores de Pinecone por UUID usando eliminación por prefix
         
         Args:
             file_uuid: UUID del archivo a eliminar
@@ -271,31 +274,53 @@ class RAGPipeline:
             if not self.vectorstore:
                 raise ValueError("Pipeline RAG no inicializado")
             
-            # Buscar vectores con el prefix del UUID
-            prefix = f"cv_{file_uuid}"
-            
             # Obtener el índice de Pinecone directamente
             pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
             index_name = os.getenv("PINECONE_INDEX_NAME", "cv-screener")
             index = pc.Index(index_name)
             
-            # Listar vectores con el prefix
-            # Nota: Pinecone no tiene una función directa para listar por prefix
-            # En una implementación real, necesitarías mantener un registro de IDs
-            # Por ahora, asumimos que los IDs siguen el patrón cv_{uuid}_chunk_{index}
+            # Buscar vectores con el prefix cv_{file_uuid}_chunk_
+            prefix = f"cv_{file_uuid}_chunk_"
             
-            # Intentar eliminar vectores conocidos (hasta 100 chunks por archivo)
-            ids_to_delete = []
-            for i in range(100):  # Asumir máximo 100 chunks por archivo
-                vector_id = f"cv_{file_uuid}_chunk_{i}"
-                ids_to_delete.append(vector_id)
+            # Usar query para encontrar todos los vectores con este prefix
+            # Pinecone permite filtrar por metadata, pero necesitamos buscar por ID
+            # Como alternativa, usamos un rango amplio y filtramos por metadata
             
-            # Eliminar vectores
-            if ids_to_delete:
+            try:
+                # Método 1: Buscar por metadata (más eficiente si hay pocos vectores)
+                query_response = index.query(
+                    vector=[0.0] * 1536,  # Vector dummy para la búsqueda
+                    top_k=1000,  # Buscar muchos resultados
+                    include_metadata=True,
+                    filter={"uuid": {"$eq": file_uuid}}
+                )
+                
+                # Extraer IDs de los resultados
+                ids_to_delete = [match.id for match in query_response.matches]
+                
+                if ids_to_delete:
+                    index.delete(ids=ids_to_delete)
+                    print(f"Eliminados {len(ids_to_delete)} vectores para UUID: {file_uuid}")
+                else:
+                    print(f"No se encontraron vectores para UUID: {file_uuid}")
+                
+                return True
+                
+            except Exception as query_error:
+                print(f"Error en query por metadata, intentando método alternativo: {query_error}")
+                
+                # Método 2: Eliminar por rango de IDs (fallback)
+                # Asumir máximo 200 chunks por archivo
+                ids_to_delete = []
+                for i in range(200):
+                    vector_id = f"cv_{file_uuid}_chunk_{i}"
+                    ids_to_delete.append(vector_id)
+                
+                # Intentar eliminar (Pinecone ignora IDs que no existen)
                 index.delete(ids=ids_to_delete)
-                print(f"Eliminados vectores para UUID: {file_uuid}")
-            
-            return True
+                print(f"Eliminación por rango completada para UUID: {file_uuid}")
+                
+                return True
             
         except Exception as e:
             print(f"Error al eliminar vectores para UUID {file_uuid}: {str(e)}")
@@ -351,6 +376,45 @@ class RAGPipeline:
         except Exception as e:
             print(f"Error al obtener estadísticas del vectorstore: {str(e)}")
             return {"error": str(e)}
+    
+    async def get_uuid_stats(self, file_uuid: str) -> Dict[str, Any]:
+        """
+        Obtiene estadísticas de vectores para un UUID específico
+        
+        Args:
+            file_uuid: UUID del archivo
+            
+        Returns:
+            Dict con estadísticas del UUID
+        """
+        try:
+            if not self.vectorstore:
+                return {"error": "Pipeline RAG no inicializado"}
+            
+            # Obtener el índice de Pinecone directamente
+            pc = Pinecone(api_key=os.getenv("PINECONE_API_KEY"))
+            index_name = os.getenv("PINECONE_INDEX_NAME", "cv-screener")
+            index = pc.Index(index_name)
+            
+            # Buscar vectores con este UUID
+            query_response = index.query(
+                vector=[0.0] * 1536,  # Vector dummy
+                top_k=1000,
+                include_metadata=True,
+                filter={"uuid": {"$eq": file_uuid}}
+            )
+            
+            return {
+                "uuid": file_uuid,
+                "vector_count": len(query_response.matches),
+                "chunk_indices": [match.metadata.get("chunk_index", -1) for match in query_response.matches],
+                "filenames": list(set([match.metadata.get("filename", "Unknown") for match in query_response.matches])),
+                "status": "found" if query_response.matches else "not_found"
+            }
+            
+        except Exception as e:
+            print(f"Error al obtener estadísticas para UUID {file_uuid}: {str(e)}")
+            return {"error": str(e), "uuid": file_uuid}
     
     async def cleanup(self):
         """Limpiar recursos"""
