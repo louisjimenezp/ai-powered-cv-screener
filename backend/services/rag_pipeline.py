@@ -10,6 +10,7 @@ from langchain.chains import RetrievalQA
 from langchain.schema import Document
 from pinecone import Pinecone
 from dotenv import load_dotenv
+from config.llm_config import get_llm_config, get_provider_info
 
 load_dotenv()
 
@@ -22,11 +23,20 @@ class RAGPipeline:
         self.llm = None
         self.qa_chain = None
         self.text_splitter = None
+        self.llm_config = None
+        self.provider_info = None
         
     async def initialize(self):
         """Inicializar el pipeline RAG"""
         try:
-            # Configurar embeddings
+            # Obtener configuración del LLM
+            self.llm_config = get_llm_config()
+            self.provider_info = get_provider_info()
+            
+            print(f"Usando proveedor: {self.provider_info['provider']}")
+            print(f"Base URL: {self.provider_info['base_url']}")
+            
+            # Configurar embeddings (siempre usa OpenAI para embeddings)
             self.embeddings = OpenAIEmbeddings(
                 openai_api_key=os.getenv("OPENAI_API_KEY")
             )
@@ -53,12 +63,18 @@ class RAGPipeline:
                 embedding=self.embeddings
             )
             
-            # Configurar LLM
-            self.llm = ChatOpenAI(
-                openai_api_key=os.getenv("OPENAI_API_KEY"),
-                model="gpt-3.5-turbo",
-                temperature=0.1
-            )
+            # Configurar LLM con la configuración dinámica
+            llm_kwargs = {
+                "openai_api_key": self.llm_config["api_key"],
+                "model": "gpt-3.5-turbo",
+                "temperature": 0.1
+            }
+            
+            # Si es OpenRouter, agregar la base_url
+            if self.llm_config["base_url"]:
+                llm_kwargs["openai_api_base"] = self.llm_config["base_url"]
+            
+            self.llm = ChatOpenAI(**llm_kwargs)
             
             # Configurar text splitter
             self.text_splitter = RecursiveCharacterTextSplitter(

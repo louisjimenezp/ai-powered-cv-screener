@@ -62,6 +62,7 @@ backend/
 ```http
 GET /api/v1/health
 GET /api/v1/health/detailed
+GET /api/v1/health/llm-config
 ```
 
 #### 2. CV Screening
@@ -247,11 +248,16 @@ make clean        # Limpiar
 ```bash
 # Pinecone
 PINECONE_API_KEY=your_pinecone_api_key
-PINECONE_ENVIRONMENT=your_environment
 PINECONE_INDEX_NAME=your_index_name
 
-# OpenAI
+# OpenAI (fallback)
 OPENAI_API_KEY=your_openai_api_key
+
+# OpenRouter (opcional - si no se define, usa OpenAI)
+OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_HTTP_REFERER=http://localhost:3000
+OPENROUTER_X_TITLE=AI-Powered CV Screener
 
 # Configuración de la aplicación
 DEBUG=True
