@@ -6,6 +6,7 @@ import {
   UploadResponse,
   FileMetadata,
   ChatResponse,
+  ChatRequest,
   DeleteResponse,
   FileListResponse,
   ChatStats
@@ -122,7 +123,8 @@ export const cvScreenerAPI = {
 
   // Chat con RAG
   async sendChatMessage(message: string): Promise<ChatResponse> {
-    const response = await api.post('/chat', { message })
+    const request: ChatRequest = { message }
+    const response = await api.post('/chat', request)
     return response.data
   },
 
