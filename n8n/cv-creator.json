@@ -174,7 +174,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer pdfe_live_b16350b849c4294e8dc60e1b2f646d2c7d1a"
+              "value": "Bearer ###"
             }
           ]
         },
